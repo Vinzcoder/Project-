@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>STRIKE VECTOR — Arena FPS Multiplayer</title>
+<title>STRIKE VECTOR — Arena FPS (Satu File)</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@cap.js/widget"></script>
+<!-- Skrip widget Cap.js (persis spec) + deteksi gagal muat -->
+<script src="https://cdn.jsdelivr.net/npm/@cap.js/widget" onerror="window.__capFail=1"></script>
 <style>
 :root{
   --bg:#0b0d10; --panel:rgba(14,17,21,.92); --line:#242b33; --line2:#313a44;
@@ -24,7 +25,7 @@ input[type=range]{accent-color:var(--acc)}
 input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
 ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:var(--line2)}
 
-/* ================= MENU ================= */
+/* ============ MENU ============ */
 #menu{position:fixed;inset:0;display:flex;pointer-events:none;z-index:10}
 .m-left{pointer-events:auto;width:400px;height:100%;background:rgba(10,12,15,.86);
   border-right:1px solid var(--line);backdrop-filter:blur(8px);
@@ -54,12 +55,20 @@ nav button.on b{color:var(--acc)}
 .m-right section{padding:28px 34px}
 .m-right h2{font-size:13px;letter-spacing:.3em;color:var(--acc);font-weight:700}
 .m-right .sub{font-size:12px;color:var(--dim);margin:4px 0 20px;letter-spacing:.05em}
-.fld{display:block;margin:14px 0 18px;font-size:10px;letter-spacing:.24em;color:var(--dim);font-weight:700}
+.fld{display:block;margin:14px 0 16px;font-size:10px;letter-spacing:.24em;color:var(--dim);font-weight:700}
 .fld input[type=text]{display:block;width:100%;margin-top:7px;padding:11px 14px;background:#0d1014;
   border:1px solid var(--line2);color:var(--txt);font-family:inherit;font-size:16px;letter-spacing:.08em;outline:none}
 .fld input[type=text]:focus{border-color:var(--acc)}
-.capwrap{border:1px solid var(--line2);padding:12px;background:#0d1014;margin-top:8px}
-cap-widget{display:block}
+.capwrap{border:1px solid var(--line2);padding:12px;background:#0d1014;margin-top:8px;transition:border-color .3s}
+.capwrap.ok{border-color:var(--acc)}
+cap-widget{display:block;max-width:280px}
+#cap-state{font-size:11px;letter-spacing:.1em;color:var(--dim);font-weight:600;margin-top:9px;min-height:14px}
+#cap-state.ok{color:var(--ok)}
+#cap-net{font-size:11px;letter-spacing:.06em;color:var(--dim);font-weight:600;margin-top:4px;min-height:14px}
+#cap-net.bad{color:var(--red)}
+#cap-reload{margin-top:8px;background:none;border:1px solid var(--line2);color:var(--dim);
+  font-size:10px;letter-spacing:.2em;font-weight:700;padding:6px 12px;cursor:pointer}
+#cap-reload:hover{border-color:var(--acc);color:var(--acc)}
 .btn{display:block;width:100%;padding:13px 18px;background:#171c22;border:1px solid var(--line2);
   color:var(--txt);font-weight:600;letter-spacing:.2em;font-size:13px;cursor:pointer;
   text-transform:uppercase;transition:.15s;margin-top:6px}
@@ -73,7 +82,6 @@ cap-widget{display:block}
 .hint{margin-top:18px;font-size:11px;line-height:2;color:var(--dim);letter-spacing:.08em;font-weight:600}
 .hint b{color:var(--txt);border:1px solid var(--line2);padding:0 5px;margin-right:2px}
 .mapline{margin-top:14px;font-size:10px;letter-spacing:.22em;color:var(--dim);font-weight:700}
-/* arsenal */
 .ars{display:grid;grid-template-columns:170px 1fr;gap:16px}
 .ar-item{display:block;width:100%;text-align:left;background:#0d1014;border:1px solid var(--line);
   padding:11px 13px;margin-bottom:6px;cursor:pointer;transition:.15s;color:var(--txt)}
@@ -90,7 +98,6 @@ cap-widget{display:block}
 .stat .sb{flex:1;height:4px;background:rgba(255,255,255,.06)}
 .stat .sb i{display:block;height:100%;background:var(--acc)}
 .stat em{font-style:normal;width:56px;text-align:right;font-size:12px;font-weight:600}
-/* loadout */
 .lo-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);
   padding:13px 16px;margin:8px 0;cursor:pointer;background:#0d1014;transition:.15s}
 .lo-row:hover{border-color:var(--line2)}
@@ -99,7 +106,6 @@ cap-widget{display:block}
 .lo-row b{font-size:16px;letter-spacing:.08em;display:block}
 .lo-row small{font-size:10px;color:var(--dim);letter-spacing:.14em;font-weight:700}
 .lo-row .tag{font-size:9px;letter-spacing:.2em;color:var(--ok);font-weight:700}
-/* settings */
 .row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
 .row>span{flex:1;font-size:11px;letter-spacing:.16em;color:var(--dim);font-weight:700}
 .row input[type=range]{width:170px}
@@ -108,7 +114,7 @@ cap-widget{display:block}
 #ch-swatches i{width:22px;height:22px;cursor:pointer;border:1px solid var(--line2)}
 #ch-swatches i.on{outline:2px solid var(--acc);outline-offset:1px}
 
-/* ================= HUD ================= */
+/* ============ HUD ============ */
 #hud{position:fixed;inset:0;pointer-events:none;z-index:5}
 #topbar{position:absolute;top:18px;left:50%;transform:translateX(-50%);text-align:center}
 #topbar .score{font-size:24px;font-weight:700;display:flex;gap:16px;align-items:baseline;justify-content:center}
@@ -200,7 +206,7 @@ cap-widget{display:block}
 
 <div id="game-root"></div>
 
-<!-- ================= HUD IN-GAME ================= -->
+<!-- ================= HUD ================= -->
 <div id="hud" class="hidden">
   <div id="topbar">
     <div class="score"><b class="ta" id="sc-a">0</b><em>:</em><b class="tb" id="sc-b">0</b></div>
@@ -221,9 +227,7 @@ cap-widget{display:block}
   <div id="scope" class="hidden"><i class="sh"></i><i class="sv"></i></div>
   <div id="netinfo"></div>
   <div id="toasts"></div>
-
   <div id="scoreboard" class="hidden"><div class="sb-head" id="sb-meta"></div><div id="sb-body"></div></div>
-
   <div id="death" class="ovl hidden">
     <h3 style="color:var(--red)">KAMU TERBUNUH</h3>
     <p id="death-by"></p>
@@ -231,6 +235,7 @@ cap-widget{display:block}
   </div>
   <div id="pause" class="ovl hidden">
     <h3>JEDA</h3>
+    <p style="font-size:11px">Jika LANJUTKAN tidak merespons, tunggu ±1 detik lalu klik lagi (cooldown browser).</p>
     <div class="prow"><span>SENSITIVITAS</span><input type="range" id="pz-sens" min="0.2" max="3" step="0.05"><em id="pz-sens-v"></em></div>
     <div class="prow"><span>VOLUME</span><input type="range" id="pz-vol" min="0" max="1" step="0.05"><em id="pz-vol-v"></em></div>
     <button id="btn-resume" class="btn primary">LANJUTKAN</button>
@@ -243,12 +248,12 @@ cap-widget{display:block}
   <div id="banner" class="hidden"><h2 id="banner-t"></h2><p id="banner-s"></p></div>
 </div>
 
-<!-- ================= MENU UTAMA ================= -->
+<!-- ================= MENU ================= -->
 <div id="menu">
   <div class="m-left">
     <div class="brand">
       <h1>STRIKE<em>VECTOR</em></h1>
-      <p>ARENA FPS • MULTIPLAYER BROWSER</p>
+      <p>ARENA FPS • SATU FILE • BOT AI</p>
     </div>
     <nav>
       <button class="on" data-view="play"><i>01 / MAIN</i><b>PLAY</b><span>verifikasi bot &amp; masuk match</span></button>
@@ -257,8 +262,8 @@ cap-widget{display:block}
       <button data-view="settings"><i>04 / SISTEM</i><b>PENGATURAN</b><span>sensitivitas, fov, audio</span></button>
     </nav>
     <div class="m-foot">
-      <div class="net"><span class="dot off" id="net-dot"></span><span id="net-txt">MENGHUBUNGKAN</span></div>
-      <div class="cnt"><b id="cnt">0</b> PEMAIN DI ARENA</div>
+      <div class="net"><span class="dot on" id="net-dot"></span><span id="net-txt">LOKAL • SIAP</span></div>
+      <div class="cnt"><b id="cnt">9</b> DI ARENA</div>
     </div>
   </div>
 
@@ -270,8 +275,11 @@ cap-widget{display:block}
         <input id="name" type="text" maxlength="14" placeholder="PEMAIN-123" autocomplete="off">
       </label>
       <label class="fld">VERIFIKASI BOT
-        <div class="capwrap">
+        <div class="capwrap" id="capwrap">
           <cap-widget data-cap-api-endpoint="https://cap-production-5a17.up.railway.app/7296970bcc/"></cap-widget>
+          <div id="cap-state"></div>
+          <div id="cap-net"></div>
+          <button id="cap-reload" type="button">MUAT ULANG CAPTCHA</button>
         </div>
       </label>
       <div class="lo-line" id="pl-summary"></div>
@@ -321,22 +329,99 @@ cap-widget{display:block}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="/shared.js"></script>
 <script>
-/* ============================================================
-   STRIKE VECTOR — klien game (Three.js + socket.io)
-   ============================================================ */
+/* ================================================================
+   STRIKE VECTOR — satu file: klien Three.js + server-lokal otoritatif + 9 bot AI
+   ================================================================ */
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
-const lerpAngle = (a, b, t) => {
+const angleDiff = (a, b) => {
   let d = ((b - a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
-  return a + d * t;
+  return d;
 };
+const turnToward = (a, b, step) => a + clamp(angleDiff(a, b), -step, step);
+const lerpAngle = (a, b, t) => a + angleDiff(a, b) * t;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-/* ---------- pengaturan & loadout (localStorage) ---------- */
+/* ---------------- data bersama (peta, senjata, aturan) ---------------- */
+const WEAPONS = {
+  rifle:  { key:'rifle',  name:'VEKTOR-77',    slot:1, desc:'Rifle serbu serbaguna. Recoil terkontrol, presisi di jarak menengah.',
+            dmg:30,  head:4,   rpm:600, mag:30, reserve:90,  reload:2.3, spread:0.014, adsSpread:0.004,  kick:1.5, range:300, auto:true,  adsFov:60, tracer:0xffd27a },
+  smg:    { key:'smg',    name:'WASP-9',       slot:1, desc:'SMG cepat untuk duel jarak dekat. Spread besar saat hip-fire.',
+            dmg:23,  head:3.2, rpm:850, mag:35, reserve:140, reload:1.9, spread:0.028, adsSpread:0.011,  kick:0.9, range:200, auto:true,  adsFov:64, tracer:0xffd27a },
+  sniper: { key:'sniper', name:'LONGBOW .338', slot:1, desc:'Bolt-action satu-tembakan-satu-bunuh. Wajib bidik lewat scope.',
+            dmg:115, head:2,   rpm:42,  mag:5,  reserve:25,  reload:3.4, spread:0.08,  adsSpread:0.0006, kick:4.2, range:400, auto:false, adsFov:24, scoped:true, tracer:0xfff1c9 },
+  pistol: { key:'pistol', name:'P-9 COMPACT',  slot:2, desc:'Sidearm andalan. Akurat, cepat, cadangan amunisi melimpah.',
+            dmg:27,  head:4,   rpm:430, mag:12, reserve:72,  reload:1.6, spread:0.02,  adsSpread:0.008,  kick:1.1, range:150, auto:false, adsFov:66, tracer:0xffd27a },
+  knife:  { key:'knife',  name:'PISAU TEMPUR', slot:3, desc:'Dua tikaman untuk satu lawan. Senyap dan memalukan bagi korban.',
+            dmg:58,  head:1.5, rpm:110, mag:0,  reserve:0,   reload:0,   spread:0,     adsSpread:0,      kick:0.4, range:2.3, auto:false, melee:true },
+};
+const PRIMARIES = ['rifle', 'smg', 'sniper'];
+
+const MAP = {
+  name: 'HANGAR-07', mode: 'TEAM DEATHMATCH', target: 25, bound: 30, wallH: 7,
+  boxes: [
+    { x: 0,   z: 0,    y: 0,   w: 5,   h: 1.1, d: 5,   c: 0x59616b, m: 'crate' },
+    { x: -7.5,z: 0,    y: 0,   w: 1.6, h: 3.4, d: 10,  c: 0x3a4149, m: 'wall'  },
+    { x: 7.5, z: 0,    y: 0,   w: 1.6, h: 3.4, d: 10,  c: 0x3a4149, m: 'wall'  },
+    { x: -16, z: -9,   y: 0,   w: 2.6, h: 1.1, d: 2.6, c: 0x6f5d3f, m: 'crate' },
+    { x: -16, z: -9,   y: 1.1, w: 2.1, h: 1.05,d: 2.1, c: 0x7c6844, m: 'crate' },
+    { x: 16,  z: -9,   y: 0,   w: 2.6, h: 1.1, d: 2.6, c: 0x6f5d3f, m: 'crate' },
+    { x: 16,  z: -9,   y: 1.1, w: 2.1, h: 1.05,d: 2.1, c: 0x7c6844, m: 'crate' },
+    { x: -16, z: 9,    y: 0,   w: 2.6, h: 1.1, d: 2.6, c: 0x6f5d3f, m: 'crate' },
+    { x: -16, z: 9,    y: 1.1, w: 2.1, h: 1.05,d: 2.1, c: 0x7c6844, m: 'crate' },
+    { x: 16,  z: 9,    y: 0,   w: 2.6, h: 1.1, d: 2.6, c: 0x6f5d3f, m: 'crate' },
+    { x: 16,  z: 9,    y: 1.1, w: 2.1, h: 1.05,d: 2.1, c: 0x7c6844, m: 'crate' },
+    { x: -24, z: 3,    y: 0,   w: 1.5, h: 3.6, d: 14,  c: 0x3a4149, m: 'wall'  },
+    { x: 24,  z: -3,   y: 0,   w: 1.5, h: 3.6, d: 14,  c: 0x3a4149, m: 'wall'  },
+    { x: -10, z: 16,   y: 0,   w: 2,   h: 5,   d: 2,   c: 0x454d56, m: 'wall'  },
+    { x: 10,  z: 16,   y: 0,   w: 2,   h: 5,   d: 2,   c: 0x454d56, m: 'wall'  },
+    { x: -10, z: -16,  y: 0,   w: 2,   h: 5,   d: 2,   c: 0x454d56, m: 'wall'  },
+    { x: 10,  z: -16,  y: 0,   w: 2,   h: 5,   d: 2,   c: 0x454d56, m: 'wall'  },
+    { x: 0,   z: -22.5,y: 0,   w: 13,  h: 2.2, d: 1.2, c: 0x3a4149, m: 'wall'  },
+    { x: 0,   z: 22.5, y: 0,   w: 13,  h: 2.2, d: 1.2, c: 0x3a4149, m: 'wall'  },
+    { x: -22, z: -18,  y: 0,   w: 2.4, h: 1.1, d: 2.4, c: 0x6f5d3f, m: 'crate' },
+    { x: 22,  z: 18,   y: 0,   w: 2.4, h: 1.1, d: 2.4, c: 0x6f5d3f, m: 'crate' },
+  ],
+  spawns: {
+    A: [[-9,-26.5],[-4.5,-26.5],[0,-27],[4.5,-26.5],[9,-26.5]],
+    B: [[-9, 26.5],[-4.5, 26.5],[0, 27],[4.5, 26.5],[9, 26.5]],
+  },
+};
+const RULES = { tick: 20, respawn: 4, hp: 100, hb: { r: 0.35, h: 1.8, head: 1.5 } };
+
+/* Ray vs AABB (slab method) */
+function rayAABB(ox, oy, oz, dx, dy, dz, min, max) {
+  let tmin = 0, tmax = Infinity;
+  const o = [ox, oy, oz], d = [dx, dy, dz];
+  for (let i = 0; i < 3; i++) {
+    if (Math.abs(d[i]) < 1e-9) { if (o[i] < min[i] || o[i] > max[i]) return null; continue; }
+    let t1 = (min[i] - o[i]) / d[i], t2 = (max[i] - o[i]) / d[i];
+    if (t1 > t2) { const t = t1; t1 = t2; t2 = t; }
+    if (t1 > tmin) tmin = t1;
+    if (t2 < tmax) tmax = t2;
+    if (tmin > tmax) return null;
+  }
+  return tmin;
+}
+function buildSolids() {
+  const s = MAP.boxes.map(b => ({
+    min: [b.x - b.w / 2, b.y, b.z - b.d / 2],
+    max: [b.x + b.w / 2, b.y + b.h, b.z + b.d / 2],
+  }));
+  const B = 31.5, H = MAP.wallH;
+  s.push(
+    { min: [-33, 0, -33], max: [33, H, -B] },
+    { min: [-33, 0, B],   max: [33, H, 33] },
+    { min: [-33, 0, -33], max: [-B, H, 33] },
+    { min: [B, 0, -33],   max: [33, H, 33] },
+  );
+  return s;
+}
+const solids = buildSolids();
+
+/* ---------------- pengaturan & loadout ---------------- */
 const settings = Object.assign(
   { sens: 1, fov: 75, vol: 0.7, ch: '#e8c15a', dot: true, fps: false },
   JSON.parse(localStorage.getItem('sv_set') || '{}'));
@@ -344,19 +429,19 @@ const loadout = Object.assign({ primary: 'rifle' }, JSON.parse(localStorage.getI
 const saveSettings = () => localStorage.setItem('sv_set', JSON.stringify(settings));
 const saveLoadout = () => localStorage.setItem('sv_load', JSON.stringify(loadout));
 
-/* ---------- state global ---------- */
+/* ---------------- state global ---------------- */
 const S = {
   phase: 'menu', inMatch: false, entered: false, locked: false,
   myId: null, myName: '', team: 'A', myHp: 100, alive: false,
   cur: 'rifle', last: 'knife', ads: 0, reloading: 0, switchEnd: 0,
-  nextFireAt: 0, respawnAt: 0, scores: { A: 0, B: 0 }, ping: 0,
+  nextFireAt: 0, respawnAt: 0, scores: { A: 0, B: 0 },
   selfK: 0, selfD: 0, board: new Map(),
 };
 const ammo = {};
 const keys = {};
 let fireHeld = false, adsHeld = false, respawnSent = false;
 
-/* ---------- audio (disintesis via WebAudio, tanpa aset) ---------- */
+/* ---------------- audio (WebAudio, tanpa aset) ---------------- */
 const sfx = (() => {
   let ac = null, master = null, noiseBuf = null;
   function ensure() {
@@ -418,7 +503,7 @@ const sfx = (() => {
   };
 })();
 
-/* ---------- three.js: scene, peta, cahaya ---------- */
+/* ---------------- three.js: renderer, scene, cahaya ---------------- */
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
 renderer.setSize(innerWidth, innerHeight);
@@ -431,7 +516,6 @@ const cnv = renderer.domElement;
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0e1114);
 scene.fog = new THREE.Fog(0x0e1114, 34, 110);
-
 scene.add(new THREE.HemisphereLight(0x9db4c8, 0x14171a, 0.5));
 const sun = new THREE.DirectionalLight(0xffdcae, 1.0);
 sun.position.set(26, 38, 14);
@@ -441,7 +525,6 @@ Object.assign(sun.shadow.camera, { left: -42, right: 42, top: 42, bottom: -42, f
 sun.shadow.bias = -0.0004;
 scene.add(sun);
 
-/* rig kamera FPS: yawObj (kaki) -> pitchObj (mata) -> camera */
 const camera = new THREE.PerspectiveCamera(settings.fov, innerWidth / innerHeight, 0.01, 250);
 const yawObj = new THREE.Object3D();
 const pitchObj = new THREE.Object3D();
@@ -450,7 +533,7 @@ yawObj.add(pitchObj); pitchObj.add(camera); scene.add(yawObj);
 const menuCam = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 300);
 let yaw = 0, pitch = 0, camRoll = 0;
 
-/* ---------- tekstur prosedural (canvas, tanpa aset eksternal) ---------- */
+/* ---------------- tekstur prosedural ---------------- */
 function makeTex(draw, rx, ry) {
   const c = document.createElement('canvas'); c.width = c.height = 256;
   draw(c.getContext('2d'));
@@ -495,15 +578,12 @@ const glowTex = (() => {
   return new THREE.CanvasTexture(c);
 })();
 
-/* ---------- bangun peta ---------- */
-const solids = buildSolids();
+/* ---------------- bangun peta ---------------- */
 (function buildMap() {
   const floor = new THREE.Mesh(new THREE.BoxGeometry(64, 0.5, 64),
     new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.92, metalness: 0.04 }));
   floor.position.y = -0.25; floor.receiveShadow = true; scene.add(floor);
-
   const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0x555f6a, roughness: 0.85, metalness: 0.05 });
-  const stripMat = new THREE.MeshBasicMaterial({ color: 0xffe9c4 });
   [[0, -32.25, 65, 1.5], [0, 32.25, 65, 1.5]].forEach(([x, z, w, d]) => {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, 7, d), wallMat);
     m.position.set(x, 3.5, z); m.receiveShadow = true; scene.add(m);
@@ -512,12 +592,11 @@ const solids = buildSolids();
     const m = new THREE.Mesh(new THREE.BoxGeometry(1.5, 7, 65), wallMat);
     m.position.set(x, 3.5, z); m.receiveShadow = true; scene.add(m);
   });
-  // strip lampu industri di dinding
+  const stripMat = new THREE.MeshBasicMaterial({ color: 0xffe9c4 });
   [[0, -31.4, 60, 0.12], [0, 31.4, 60, 0.12], [-31.4, 0, 0.12, 60], [31.4, 0, 0.12, 60]].forEach(([x, z, w, d]) => {
     const s = new THREE.Mesh(new THREE.BoxGeometry(w, 0.18, d), stripMat);
     s.position.set(x, 5.7, z); scene.add(s);
   });
-
   for (const b of MAP.boxes) {
     const mat = new THREE.MeshStandardMaterial({
       map: b.m === 'crate' ? crateTex : wallTex, color: b.c, roughness: 0.8, metalness: 0.08 });
@@ -526,7 +605,6 @@ const solids = buildSolids();
     m.castShadow = m.receiveShadow = true;
     scene.add(m);
   }
-  // penanda tim: pad + lampu area spawn
   [['A', 0xe2a53e, -25], ['B', 0x5f8fb3, 25]].forEach(([t, c, z]) => {
     const padMat = new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.35, depthWrite: false });
     for (const s of MAP.spawns[t]) {
@@ -538,7 +616,7 @@ const solids = buildSolids();
   });
 })();
 
-/* ---------- model senjata (dipakai viewmodel & pemain remote) ---------- */
+/* ---------------- model senjata ---------------- */
 const gunMats = {
   metal: new THREE.MeshStandardMaterial({ color: 0x2b2f34, roughness: 0.42, metalness: 0.75 }),
   dark:  new THREE.MeshStandardMaterial({ color: 0x17191c, roughness: 0.55, metalness: 0.45 }),
@@ -580,7 +658,7 @@ function buildWeapon(key) {
     part(g, gunMats.dark, 0.04, 0.12, 0.06, 0, -0.09, -0.02);
     part(g, gunMats.dark, 0.045, 0.09, 0.05, 0, -0.08, 0.12, 0.3);
     part(g, gunMats.dark, 0.05, 0.09, 0.24, 0, -0.01, 0.3);
-    part(g, gunMats.acc, 0.02, 0.02, 0.02, 0.03, 0.01, 0.06); // tuas bolt
+    part(g, gunMats.acc, 0.02, 0.02, 0.02, 0.03, 0.01, 0.06);
     const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.18, 12), gunMats.dark);
     scope.rotation.x = Math.PI / 2; scope.position.set(0, 0.075, -0.06); g.add(scope);
     const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.01, 12), gunMats.acc);
@@ -591,7 +669,7 @@ function buildWeapon(key) {
     part(g, gunMats.dark, 0.04, 0.115, 0.055, 0, -0.05, 0.02, 0.22);
     part(g, gunMats.acc, 0.044, 0.012, 0.05, 0, -0.005, -0.16);
     g.userData.muzzle = new THREE.Vector3(0, 0.025, -0.19);
-  } else { // knife
+  } else {
     part(g, gunMats.blade, 0.012, 0.045, 0.26, 0, 0.01, -0.16);
     part(g, gunMats.metal, 0.05, 0.014, 0.02, 0, 0.005, -0.03);
     part(g, gunMats.dark, 0.03, 0.05, 0.13, 0, 0, 0.035);
@@ -601,13 +679,14 @@ function buildWeapon(key) {
 }
 function disposeGroup(g) { g.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
 
-/* ---------- viewmodel (senjata di tangan) ---------- */
+/* ---------------- viewmodel ---------------- */
 const vm = new THREE.Group();
 camera.add(vm);
 let vmW = null, flashSpr = null, flashLight = null;
 let bobT = 0, vmKick = 0, flashT = 0, swingT = 0;
 function buildVM(key) {
   if (vmW) disposeGroup(vmW);
+  if (flashSpr) flashSpr.material.dispose(); // fix kebocoran material
   vm.clear();
   vmW = buildWeapon(key); vm.add(vmW);
   const mz = vmW.userData.muzzle || new THREE.Vector3(0, 0, -0.5);
@@ -619,7 +698,7 @@ function buildVM(key) {
   flashLight.position.copy(mz); vm.add(flashLight);
 }
 
-/* ---------- model pemain remote ---------- */
+/* ---------------- model pemain (remote/bot) ---------------- */
 const matTA = new THREE.MeshStandardMaterial({ color: 0x8a6a2f, roughness: 0.85 });
 const matTB = new THREE.MeshStandardMaterial({ color: 0x375972, roughness: 0.85 });
 const matPants = new THREE.MeshStandardMaterial({ color: 0x23262b, roughness: 0.9 });
@@ -644,9 +723,10 @@ function buildPlayerMesh(team, name) {
   const ring = new THREE.Mesh(new THREE.CircleGeometry(0.55, 22), cA ? ringA : ringB);
   ring.rotation.x = -Math.PI / 2; ring.position.y = 0.03; g.add(ring);
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64;
-  const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true }));
+  const tex = new THREE.CanvasTexture(cv);
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
   spr.scale.set(1.75, 0.44, 1); spr.position.y = 2.08; g.add(spr);
-  g.userData = { gunP, torso, tagCv: cv, tagTex: spr.material.map };
+  g.userData = { gunP, torso, tagCv: cv, tagTex: tex, tagMat: spr.material };
   drawTagOn(g, name, 100, team);
   return g;
 }
@@ -670,7 +750,7 @@ function setRemoteGun(r, key) {
   r.gun.position.set(0, 0.02, -0.22);
   r.gunP.add(r.gun);
 }
-function addRemote(q) {
+function makeRemote(q) {
   const r = {
     id: q.id, name: q.n, team: q.t, hp: q.hp, alive: !!q.a, moving: false, crouch: false,
     gunKey: null, gun: null, deadAt: 0, animT: Math.random() * 6,
@@ -685,17 +765,23 @@ function addRemote(q) {
   remotes.set(q.id, r);
   return r;
 }
+function ensureRemote(q) {
+  let r = remotes.get(q.id);
+  if (!r) r = makeRemote(q);
+  return r;
+}
 function removeRemote(id) {
   const r = remotes.get(id);
   if (!r) return;
   disposeGroup(r.g);
   if (r.gun) disposeGroup(r.gun);
   r.g.userData.tagTex.dispose();
+  r.g.userData.tagMat.dispose();
   scene.remove(r.g);
   remotes.delete(id);
 }
 
-/* ---------- efek: tracer & partikel ---------- */
+/* ---------------- efek: tracer & partikel ---------------- */
 const tracers = [];
 for (let i = 0; i < 24; i++) {
   const geo = new THREE.BufferGeometry();
@@ -707,7 +793,7 @@ for (let i = 0; i < 24; i++) {
   tracers.push({ line, mat, life: 0 });
 }
 function spawnTracer(a, b, colorHex) {
-  let t = tracers.find(x => x.life <= 0) || tracers[0];
+  const t = tracers.find(x => x.life <= 0) || tracers[0];
   const pos = t.line.geometry.attributes.position;
   pos.setXYZ(0, a.x, a.y, a.z); pos.setXYZ(1, b.x, b.y, b.z);
   pos.needsUpdate = true;
@@ -760,7 +846,7 @@ function updateFX(dt) {
   if (dirty) pGeo.attributes.position.needsUpdate = true;
 }
 
-/* ---------- raycast visual (server tetap otoritatif soal damage) ---------- */
+/* ---------------- raycast visual (damage tetap otoritatif di server lokal) ---------------- */
 function clientRaycast(o, d, maxT, excludeId) {
   let bestT = maxT, best = null;
   for (const s of solids) {
@@ -780,135 +866,399 @@ function clientRaycast(o, d, maxT, excludeId) {
   return best;
 }
 function impactFX(hit) {
-  const c = hit.type === 'player'
-    ? new THREE.Color(0xb3362c) : new THREE.Color(0xffce7e);
+  const c = hit.type === 'player' ? new THREE.Color(0xb3362c) : new THREE.Color(0xffce7e);
   burst(hit.point.x, hit.point.y, hit.point.z, c, hit.type === 'player' ? 10 : 7, hit.type === 'player' ? 2.6 : 3.2);
 }
 
-/* ---------- gerakan & tabrakan (prediksi klien) ---------- */
-const P = { pos: new THREE.Vector3(0, 0, 20), vel: new THREE.Vector3(), ground: true, crouch: false, h: 1.8, step: 0 };
-function collideAxis(axis, delta) {
-  const r = 0.35, h = P.h;
-  P.pos[axis] += delta;
-  if (axis === 'y' && P.pos.y < 0) { P.pos.y = 0; P.vel.y = 0; P.ground = true; }
-  for (const s of solids) {
-    if (P.pos.x - r >= s.max[0] || P.pos.x + r <= s.min[0] ||
-        P.pos.z - r >= s.max[2] || P.pos.z + r <= s.min[2] ||
-        P.pos.y >= s.max[1] || P.pos.y + h <= s.min[1]) continue;
-    if (axis === 'y') {
-      if (delta <= 0) { P.pos.y = s.max[1]; P.ground = true; }
-      else { P.pos.y = s.min[1] - h; }
-      P.vel.y = 0;
-    } else {
-      const ai = axis === 'x' ? 0 : 2;
-      P.pos[axis] = delta > 0 ? s.min[ai] - r : s.max[ai] + r;
-      P.vel[axis] = 0;
+/* ================================================================
+   SERVER LOKAL — logika otoritatif (identik versi Node.js) + 9 BOT AI
+   ================================================================ */
+function createLocalServer() {
+  const players = new Map();
+  let scores = { A: 0, B: 0 };
+  let matchOver = false, resetTimer = null, myId = null, snapCount = 0;
+  const listeners = {};
+  const on = (ev, fn) => { (listeners[ev] = listeners[ev] || []).push(fn); };
+  const out = (ev, d) => { (listeners[ev] || []).forEach(f => { try { f(d); } catch (e) { console.error(e); } }); };
+  const net = { on, connected: true, emit: (ev, d) => setTimeout(() => handle(ev, d), 0) };
+
+  /* ---------- navigasi bot ---------- */
+  const NP = [
+    [0,-26],[9,-26],[-9,-26],[10,-20],[-10,-20],[0,-20],
+    [6,-13],[-6,-13],[0,-14],[14,-13],[-14,-13],
+    [5,-6],[-5,-6],[11.5,-6],[-11.5,-6],[20,-5],[-20,-5],
+    [5,0],[-5,0],[0,-5],[0,5],[11.5,0],[-11.5,0],[20,0],[-20,0],
+    [5,6],[-5,6],[11.5,6],[-11.5,6],[20,5],[-20,5],
+    [6,13],[-6,13],[0,14],[14,13],[-14,13],
+    [10,20],[-10,20],[0,26],[9,26],[-9,26],
+    [28,-20],[-28,-20],[28,-10],[-28,-10],[28,0],[-28,0],[28,10],[-28,10],[28,20],[-28,20],
+  ];
+  function segClear(a, b) {
+    const M = 0.8;
+    const steps = Math.max(2, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.4));
+    for (let i = 0; i <= steps; i++) {
+      const x = a[0] + (b[0] - a[0]) * i / steps, z = a[1] + (b[1] - a[1]) * i / steps;
+      for (const s of solids) {
+        if (s.min[1] < 1.0 && x > s.min[0] - M && x < s.max[0] + M && z > s.min[2] - M && z < s.max[2] + M) return false;
+      }
+    }
+    return true;
+  }
+  const ADJ = NP.map(() => []);
+  for (let i = 0; i < NP.length; i++) for (let j = i + 1; j < NP.length; j++) {
+    if (Math.hypot(NP[i][0] - NP[j][0], NP[i][1] - NP[j][1]) > 11) continue;
+    if (segClear(NP[i], NP[j])) { ADJ[i].push(j); ADJ[j].push(i); }
+  }
+  function nearestNode(x, z) {
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < NP.length; i++) {
+      const d = (NP[i][0] - x) ** 2 + (NP[i][1] - z) ** 2;
+      if (d < bd) { bd = d; bi = i; }
+    }
+    return bi;
+  }
+  function findPath(a, b) {
+    if (a === b) return [b];
+    const prev = new Array(NP.length).fill(-1);
+    prev[a] = a; const q = [a];
+    while (q.length) {
+      const u = q.shift();
+      for (const v of ADJ[u]) {
+        if (prev[v] !== -1) continue;
+        prev[v] = u;
+        if (v === b) {
+          const path = [v]; let c = v;
+          while (c !== a) { c = prev[c]; path.unshift(c); }
+          return path;
+        }
+        q.push(v);
+      }
+    }
+    return null;
+  }
+  function pointBlocked(x, z) {
+    const M = 0.5;
+    for (const s of solids) {
+      if (s.min[1] < 1.0 && x > s.min[0] - M && x < s.max[0] + M && z > s.min[2] - M && z < s.max[2] + M) return true;
+    }
+    return false;
+  }
+
+  /* ---------- util pemain ---------- */
+  function snapObj(p) {
+    return { id: p.id, n: p.name, t: p.team, x: +p.pos.x.toFixed(2), y: +p.pos.y.toFixed(2),
+      z: +p.pos.z.toFixed(2), yaw: +p.yaw.toFixed(3), pitch: +p.pitch.toFixed(3), hp: p.hp,
+      w: p.weapon, a: p.alive ? 1 : 0, c: p.crouch ? 1 : 0, mv: p.moving ? 1 : 0, k: p.kills, d: p.deaths };
+  }
+  function spawnPos(team) {
+    const s = MAP.spawns[team][Math.floor(Math.random() * MAP.spawns[team].length)];
+    return { x: s[0] + (Math.random() - 0.5) * 1.6, y: 0, z: s[1] + (Math.random() - 0.5) * 1.6 };
+  }
+  function castRay(ox, oy, oz, dx, dy, dz, excludeId, maxT) {
+    let bestT = maxT, hitPlayer = null, head = false;
+    for (const s of solids) {
+      const t = rayAABB(ox, oy, oz, dx, dy, dz, s.min, s.max);
+      if (t !== null && t > 0.001 && t < bestT) { bestT = t; hitPlayer = null; }
+    }
+    for (const p of players.values()) {
+      if (p.id === excludeId || !p.alive) continue;
+      const r = RULES.hb.r;
+      const min = [p.pos.x - r, p.pos.y, p.pos.z - r];
+      const max = [p.pos.x + r, p.pos.y + RULES.hb.h, p.pos.z + r];
+      const t = rayAABB(ox, oy, oz, dx, dy, dz, min, max);
+      if (t !== null && t > 0.001 && t < bestT) {
+        bestT = t; hitPlayer = p;
+        head = oy + dy * t > p.pos.y + RULES.hb.head;
+      }
+    }
+    return hitPlayer ? { t: bestT, type: 'player', p: hitPlayer, head }
+         : bestT < maxT ? { t: bestT, type: 'map' } : null;
+  }
+  function kill(k, v, w, head) {
+    v.alive = false; v.hp = 0; v.deaths++; v.diedAt = Date.now();
+    if (k !== v) { k.kills++; scores[k.team]++; }
+    out('death', {
+      victim: v.id, vName: v.name, vTeam: v.team,
+      killer: k.id, kName: k.name, kTeam: k.team,
+      w, head, scores: { A: scores.A, B: scores.B },
+    });
+    if (v.bot) { v.ai.state = 'patrol'; v.ai.path = null; v.ai.targetId = null; }
+    if (!matchOver && scores[k.team] >= MAP.target) {
+      matchOver = true;
+      out('match:end', { winner: k.team, scores: { A: scores.A, B: scores.B } });
+      resetTimer = setTimeout(() => {
+        scores = { A: 0, B: 0 }; matchOver = false; resetTimer = null;
+        out('score', scores);
+      }, 6000);
     }
   }
-}
-function updateLocal(dt) {
-  P.crouch = !!(keys.ControlLeft || keys.KeyC);
-  P.h = lerp(P.h, P.crouch ? 1.25 : 1.8, 1 - Math.exp(-12 * dt));
-  const f = (keys.KeyW ? 1 : 0) - (keys.KeyS ? 1 : 0);
-  const s = (keys.KeyD ? 1 : 0) - (keys.KeyA ? 1 : 0);
-  const spd = P.crouch ? 2.3 : keys.ShiftLeft ? 2.7 : 5.4;
-  const sy = Math.sin(yaw), cy = Math.cos(yaw);
-  let wx = -sy * f + cy * s, wz = -cy * f - sy * s;
-  const wl = Math.hypot(wx, wz);
-  if (wl > 0) { wx /= wl; wz /= wl; }
-  const acc = P.ground ? 55 : 9;
-  P.vel.x += wx * acc * dt; P.vel.z += wz * acc * dt;
-  if (P.ground && wl === 0) { const fr = Math.exp(-11 * dt); P.vel.x *= fr; P.vel.z *= fr; }
-  const hv = Math.hypot(P.vel.x, P.vel.z);
-  if (hv > spd) { const k = spd / hv; P.vel.x *= k; P.vel.z *= k; }
-  P.vel.y -= 24 * dt;
-  if (P.ground && keys.Space) { P.vel.y = 7.6; P.ground = false; }
-  P.ground = false;
-  collideAxis('x', P.vel.x * dt);
-  collideAxis('z', P.vel.z * dt);
-  collideAxis('y', P.vel.y * dt);
-  if (P.ground && hv > 2) { P.step += hv * dt; if (P.step > 2.6) { P.step = 0; sfx.step(); } }
-}
-function forwardVec() {
-  const cp = Math.cos(pitch);
-  return new THREE.Vector3(-Math.sin(yaw) * cp, Math.sin(pitch), -Math.cos(yaw) * cp);
-}
-function eyePos() { return new THREE.Vector3(P.pos.x, P.pos.y + P.h - 0.18, P.pos.z); }
-function curSpread() {
-  const wp = WEAPONS[S.cur];
-  const base = S.ads > 0.5 ? wp.adsSpread : wp.spread;
-  return base * (Math.hypot(P.vel.x, P.vel.z) > 1.5 ? 1.7 : 1) * (P.ground ? 1 : 2.6) * (P.crouch ? 0.75 : 1);
-}
-
-/* ---------- menembak / reload / ganti senjata ---------- */
-function tryFire(now) {
-  if (!S.inMatch || !S.alive || !S.locked || S.reloading || now < S.switchEnd || now < S.nextFireAt) return;
-  const wp = WEAPONS[S.cur];
-  if (wp.melee) {
-    S.nextFireAt = now + 60000 / wp.rpm;
-    swingT = 1;
-    sfx.shot('knife');
-    const d = forwardVec();
-    socket.emit('shoot', { w: 'knife', d: [d.x, d.y, d.z] });
-    return;
+  /* pipeline tembakan otoritatif — dipakai pemain manusia DAN bot (sama adil) */
+  function processShot(p, w, dx, dy, dz) {
+    const wp = WEAPONS[w]; if (!wp) return;
+    const now = Date.now();
+    if (now - p.lastShot < 60000 / wp.rpm * 0.7) return; // anti rapid-fire
+    p.lastShot = now;
+    const ox = p.pos.x, oy = p.pos.y + 1.62, oz = p.pos.z;
+    out('shot', { id: p.id, w, o: [+ox.toFixed(2), +oy.toFixed(2), +oz.toFixed(2)], d: [+dx.toFixed(3), +dy.toFixed(3), +dz.toFixed(3)] });
+    const hit = castRay(ox, oy, oz, dx, dy, dz, p.id, wp.range);
+    if (!hit || hit.type !== 'player') return;
+    const v = hit.p;
+    if (v.team === p.team) return; // tanpa friendly-fire
+    const dmg = Math.round(wp.dmg * (hit.head ? wp.head : 1));
+    v.hp -= dmg;
+    if (v.id === myId) out('dmg', { from: p.id, fromPos: [ox, oy, oz], dmg, hp: Math.max(0, v.hp) });
+    if (p.id === myId) out('hit', { dmg, head: hit.head });
+    if (v.hp <= 0 && v.alive) kill(p, v, w, hit.head);
   }
-  const a = ammo[S.cur];
-  if (a.mag <= 0) { sfx.empty(); S.nextFireAt = now + 220; tryReload(); return; }
-  a.mag--;
-  S.nextFireAt = now + 60000 / wp.rpm;
-  const d = forwardVec();
-  const sp = curSpread();
-  d.x += (Math.random() * 2 - 1) * sp; d.y += (Math.random() * 2 - 1) * sp; d.z += (Math.random() * 2 - 1) * sp;
-  d.normalize();
-  // recoil
-  const kf = wp.kick * (S.ads > 0.5 ? 0.6 : 1);
-  pitch = Math.min(1.55, pitch + kf * 0.0095);
-  yaw += (Math.random() - 0.5) * kf * 0.0032;
-  vmKick = Math.min(vmKick + wp.kick * 0.9, 5);
-  flashT = 1;
-  flashSpr.scale.set(0.15 + Math.random() * 0.12, 0.15 + Math.random() * 0.12, 1);
-  flashSpr.material.rotation = Math.random() * 6.28;
-  sfx.shot(S.cur);
-  // visual (tracer/dampak) — damage tetap divalidasi server
-  const o = eyePos();
-  const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
-  const muz = o.clone().addScaledVector(d, 0.6).addScaledVector(right, 0.2 * (1 - S.ads));
-  muz.y -= 0.14 * (1 - S.ads);
-  const hit = clientRaycast(o, d, wp.range, S.myId);
-  const end = hit ? hit.point : o.clone().addScaledVector(d, Math.min(wp.range, 90));
-  spawnTracer(muz, end, wp.tracer);
-  if (hit) impactFX(hit);
-  socket.emit('shoot', { w: S.cur, d: [d.x, d.y, d.z] });
-  updateWeaponHUD();
-}
-function tryReload() {
-  const wp = WEAPONS[S.cur];
-  if (wp.melee || S.reloading || performance.now() < S.switchEnd) return;
-  const a = ammo[S.cur];
-  if (!a || a.mag >= wp.mag || a.reserve <= 0) return;
-  S.reloading = performance.now() + wp.reload * 1000;
-  sfx.reload();
-}
-function finishReload() {
-  const wp = WEAPONS[S.cur], a = ammo[S.cur];
-  const take = Math.min(wp.mag - a.mag, a.reserve);
-  a.mag += take; a.reserve -= take;
-  S.reloading = 0;
-  updateWeaponHUD();
-}
-function switchTo(key, instant) {
-  if (!S.inMatch || !S.alive || key === S.cur || !WEAPONS[key]) return;
-  S.last = S.cur;
-  S.cur = key;
-  S.switchEnd = performance.now() + (instant ? 200 : 380);
-  S.reloading = 0; S.ads = 0;
-  buildVM(key);
-  if (!instant) sfx.swap();
-  socket.emit('switch', { w: key });
-  updateWeaponHUD();
-}
 
-/* ---------- HUD ---------- */
+  /* ---------- bot AI ---------- */
+  const BOT_DEF = [
+    ['DIMAS', 'A', 'rifle'], ['ARIF', 'A', 'smg'], ['GILANG', 'A', 'sniper'], ['SENJA', 'A', 'rifle'],
+    ['BARA', 'B', 'rifle'], ['REZA', 'B', 'smg'], ['YUDHA', 'B', 'rifle'], ['PANJI', 'B', 'sniper'], ['OTTO', 'B', 'smg'],
+  ];
+  let botSeq = 0;
+  function addBot(name, team, weapon) {
+    const sp = spawnPos(team);
+    players.set('bot' + (++botSeq), {
+      id: 'bot' + botSeq, name, team, bot: true, weapon,
+      pos: { x: sp.x, y: 0, z: sp.z }, yaw: team === 'A' ? Math.PI : 0, pitch: 0,
+      hp: RULES.hp, alive: true, kills: 0, deaths: 0, crouch: false, moving: 0,
+      lastShot: 0, diedAt: 0,
+      ai: { state: 'patrol', path: null, targetId: null, reactAt: 0, nextScan: Math.random() * 0.2,
+            burstUntil: 0, pauseUntil: 0, lastSeen: 0, lastKnown: null,
+            strafeDir: Math.random() < 0.5 ? -1 : 1, strafePhase: Math.random(), yawTarget: 0 },
+    });
+  }
+  BOT_DEF.forEach(b => addBot(b[0], b[1], b[2]));
+  function respawnBot(p) {
+    p.alive = true; p.hp = RULES.hp;
+    const sp = spawnPos(p.team);
+    p.pos = { x: sp.x, y: 0, z: sp.z };
+    p.yaw = p.team === 'A' ? Math.PI : 0; p.pitch = 0;
+    p.ai.state = 'patrol'; p.ai.path = null; p.ai.targetId = null;
+    p.ai.nextScan = Math.random() * 0.2; p.ai.burstUntil = 0; p.ai.pauseUntil = 0;
+  }
+  function resetMatch() {
+    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+    matchOver = false;
+    scores = { A: 0, B: 0 };
+    for (const p of players.values()) if (p.bot) respawnBot(p);
+    out('score', scores);
+  }
+  function hasLOS(a, b) {
+    const ox = a.pos.x, oy = a.pos.y + 1.62, oz = a.pos.z;
+    let dx = b.pos.x - ox, dy = (b.pos.y + 1.5) - oy, dz = b.pos.z - oz;
+    const L = Math.hypot(dx, dy, dz) || 1;
+    dx /= L; dy /= L; dz /= L;
+    for (const s of solids) {
+      const t = rayAABB(ox, oy, oz, dx, dy, dz, s.min, s.max);
+      if (t !== null && t > 0.01 && t < L - 0.2) return false;
+    }
+    return true;
+  }
+  function botScan(b, now) {
+    let best = null, bd = 58;
+    for (const p of players.values()) {
+      if (p.team === b.team || !p.alive) continue;
+      const d = Math.hypot(p.pos.x - b.pos.x, p.pos.z - b.pos.z);
+      if (d < bd && hasLOS(b, p)) { best = p; bd = d; }
+    }
+    if (best) {
+      if (b.ai.state !== 'engage') {
+        b.ai.reactAt = now + 350 + Math.random() * 450 + (b.weapon === 'sniper' ? 400 : 0);
+      }
+      b.ai.state = 'engage';
+      b.ai.targetId = best.id;
+      b.ai.lastSeen = now;
+      b.ai.lastKnown = { x: best.pos.x, z: best.pos.z };
+      b.ai.path = null;
+    }
+  }
+  function setDest(b, x, z) {
+    const path = findPath(nearestNode(b.pos.x, b.pos.z), nearestNode(x, z));
+    b.ai.path = path && path.length ? path : null;
+  }
+  function botFire(b, tgt, dist, now) {
+    b.lastShot = now;
+    const ox = b.pos.x, oy = b.pos.y + 1.62, oz = b.pos.z;
+    let dx = tgt.pos.x - ox, dy = (tgt.pos.y + 1.15) - oy, dz = tgt.pos.z - oz;
+    const L = Math.hypot(dx, dy, dz) || 1;
+    dx /= L; dy /= L; dz /= L;
+    // galat bidik: membesar seiring jarak & target bergerak; sniper dibuat lebih telat reaksinya
+    const err = (0.02 + dist * 0.0012 + (tgt.moving ? 0.012 : 0) + (tgt.crouch ? 0.008 : 0))
+                * (b.weapon === 'sniper' ? 2.2 : 1);
+    dx += (Math.random() * 2 - 1) * err;
+    dy += (Math.random() * 2 - 1) * err * 0.7;
+    dz += (Math.random() * 2 - 1) * err;
+    const n = Math.hypot(dx, dy, dz);
+    processShot(b, b.weapon, dx / n, dy / n, dz / n);
+  }
+  function botCombat(b, tgt, dt, now) {
+    const ox = b.pos.x, oy = b.pos.y + 1.62, oz = b.pos.z;
+    const dx = tgt.pos.x - ox, dy = (tgt.pos.y + 1.15) - oy, dz = tgt.pos.z - oz;
+    const dist = Math.hypot(dx, dy, dz) || 1;
+    const wantYaw = Math.atan2(-dx, -dz);
+    const wantPitch = Math.atan2(dy, Math.hypot(dx, dz));
+    b.yaw = turnToward(b.yaw, wantYaw, 6.5 * dt);
+    b.pitch = clamp(turnToward(b.pitch, wantPitch, 5 * dt), -1.2, 1.2);
+    b.crouch = b.weapon === 'sniper';
+    // strafe lateral saat duel
+    b.ai.strafePhase += dt * 0.5;
+    if (b.ai.strafePhase > 1) { b.ai.strafePhase = 0; b.ai.strafeDir *= -1; }
+    const rx = Math.cos(b.yaw), rz = -Math.sin(b.yaw);
+    const nx = b.pos.x + rx * b.ai.strafeDir * 2.0 * dt;
+    const nz = b.pos.z + rz * b.ai.strafeDir * 2.0 * dt;
+    if (!pointBlocked(nx, nz)) { b.pos.x = clamp(nx, -30.5, 30.5); b.pos.z = clamp(nz, -30.5, 30.5); }
+    else b.ai.strafeDir *= -1;
+    b.moving = 1;
+    // menembak: butuh reaksi + bidikan searah
+    const aimOk = Math.abs(angleDiff(b.yaw, wantYaw)) < 0.14 && Math.abs(angleDiff(b.pitch, wantPitch)) < 0.12;
+    if (now < b.ai.reactAt || now < b.ai.pauseUntil || !aimOk) return;
+    if (b.ai.burstUntil === 0) b.ai.burstUntil = now + 350 + Math.random() * 550;
+    if (now < b.ai.burstUntil) {
+      const wp = WEAPONS[b.weapon];
+      if (now - b.lastShot > 60000 / wp.rpm * 1.15) botFire(b, tgt, dist, now);
+    } else {
+      b.ai.pauseUntil = b.ai.burstUntil + 380 + Math.random() * 750;
+      b.ai.burstUntil = 0;
+    }
+  }
+  function botTick(b, dt, now) {
+    if (!b.alive) {
+      if (now - b.diedAt > RULES.respawn * 1000) respawnBot(b);
+      return;
+    }
+    b.ai.nextScan -= dt;
+    if (b.ai.nextScan <= 0) { b.ai.nextScan = 0.16 + Math.random() * 0.12; botScan(b, now); }
+
+    if (b.ai.state === 'engage') {
+      const tgt = players.get(b.ai.targetId);
+      if (tgt && tgt.alive && now - b.ai.lastSeen <= 1000) {
+        botCombat(b, tgt, dt, now);
+        return;
+      }
+      // target hilang → buru posisi terakhir yang diketahui
+      b.ai.state = 'hunt';
+      b.ai.targetId = null;
+      b.ai.path = null;
+      if (b.ai.lastKnown) setDest(b, b.ai.lastKnown.x, b.ai.lastKnown.z);
+    }
+
+    b.moving = 0;
+    b.crouch = false;
+    if (!b.ai.path || !b.ai.path.length) {
+      let ni = Math.floor(Math.random() * NP.length);
+      if (Math.random() < 0.65) { // condong ke area tengah / sisi lawan
+        const pool = [];
+        for (let i = 0; i < NP.length; i++) if (b.team === 'A' ? NP[i][1] > -4 : NP[i][1] < 4) pool.push(i);
+        if (pool.length) ni = pool[Math.floor(Math.random() * pool.length)];
+      }
+      const path = findPath(nearestNode(b.pos.x, b.pos.z), ni);
+      b.ai.path = path && path.length ? path : null;
+    }
+    if (b.ai.path && b.ai.path.length) {
+      const t = NP[b.ai.path[0]];
+      const dx = t[0] - b.pos.x, dz = t[1] - b.pos.z;
+      const d = Math.hypot(dx, dz);
+      if (d < 0.7) {
+        b.ai.path.shift();
+        if (!b.ai.path.length) { b.ai.path = null; if (b.ai.state === 'hunt') b.ai.state = 'patrol'; }
+      } else {
+        const spd = b.ai.state === 'hunt' ? 5.0 : 4.2;
+        b.pos.x = clamp(b.pos.x + dx / d * spd * dt, -30.5, 30.5);
+        b.pos.z = clamp(b.pos.z + dz / d * spd * dt, -30.5, 30.5);
+        b.moving = 1;
+        b.ai.yawTarget = Math.atan2(-dx, -dz);
+        b.yaw = turnToward(b.yaw, b.ai.yawTarget, 5 * dt);
+      }
+    }
+    b.pitch = lerp(b.pitch, 0, 1 - Math.exp(-4 * dt));
+  }
+
+  /* ---------- event dari klien (manusia) ---------- */
+  function handle(ev, d) {
+    if (ev === 'game:join') {
+      const token = d && typeof d.token === 'string' && d.token ? d.token : null;
+      if (!token) return out('join:err', { msg: 'Token verifikasi tidak valid.' });
+      const nm = String((d && d.name) || '').replace(/[^\w \-]/g, '').trim().slice(0, 14)
+        || 'PEMAIN-' + Math.floor(100 + Math.random() * 900);
+      const primary = PRIMARIES.includes(d && d.loadout && d.loadout.primary) ? d.loadout.primary : 'rifle';
+      if (myId) players.delete(myId);
+      myId = 'me';
+      resetMatch();
+      const sp = spawnPos('A');
+      players.set('me', {
+        id: 'me', name: nm, team: 'A', bot: false, weapon: primary, primary,
+        pos: { x: sp.x, y: 0, z: sp.z }, yaw: Math.PI, pitch: 0,
+        hp: RULES.hp, alive: true, kills: 0, deaths: 0, crouch: false, moving: 0,
+        lastShot: 0, diedAt: 0,
+      });
+      out('join:ok', {
+        id: 'me', team: 'A', name: nm, primary,
+        pos: [sp.x, sp.y, sp.z], yaw: Math.PI,
+        players: [...players.values()].map(snapObj),
+        scores: { A: 0, B: 0 },
+      });
+      out('count', players.size);
+    }
+    else if (ev === 'move') {
+      const p = players.get(myId);
+      if (!p || !p.alive || !d || !Array.isArray(d.p)) return;
+      const n = (v, lo, hi) => Math.max(lo, Math.min(hi, +v || 0));
+      p.pos.x = n(d.p[0], -MAP.bound, MAP.bound);
+      p.pos.y = n(d.p[1], 0, 12);
+      p.pos.z = n(d.p[2], -MAP.bound, MAP.bound);
+      p.yaw = n(d.yaw, -Math.PI * 4, Math.PI * 4);
+      p.pitch = n(d.pitch, -1.6, 1.6);
+      p.crouch = !!d.crouch;
+      p.moving = !!d.moving;
+    }
+    else if (ev === 'switch') {
+      const p = players.get(myId);
+      if (!p || !d) return;
+      if (d.w === p.primary || d.w === 'pistol' || d.w === 'knife') p.weapon = d.w;
+    }
+    else if (ev === 'shoot') {
+      const p = players.get(myId);
+      if (!p || !p.alive || !d || !Array.isArray(d.d)) return;
+      if (d.w !== p.weapon) return;
+      let dx = +d.d[0] || 0, dy = +d.d[1] || 0, dz = +d.d[2] || 0;
+      const L = Math.hypot(dx, dy, dz);
+      if (!isFinite(L) || L < 0.5 || L > 1.5) return;
+      processShot(p, d.w, dx / L, dy / L, dz / L);
+    }
+    else if (ev === 'respawn') {
+      const p = players.get(myId);
+      if (!p || p.alive) return;
+      if (Date.now() - p.diedAt < RULES.respawn * 900) return;
+      p.alive = true; p.hp = RULES.hp;
+      const sp = spawnPos('A');
+      p.pos = { x: sp.x, y: 0, z: sp.z };
+      p.yaw = Math.PI;
+      p.weapon = p.primary;
+      out('respawn:ok', { pos: [p.pos.x, p.pos.y, p.pos.z], yaw: p.yaw, hp: p.hp });
+    }
+    else if (ev === 'ping') { out('pong', d); }
+    else if (ev === 'game:leave') {
+      if (myId) { players.delete(myId); myId = null; out('count', players.size); }
+    }
+  }
+
+  /* ---------- loop server: tick AI + snapshot 20 Hz ---------- */
+  setInterval(() => {
+    const now = Date.now(), dt = 0.05;
+    for (const p of players.values()) if (p.bot) botTick(p, dt, now);
+    out('snap', [...players.values()].map(snapObj));
+    if (++snapCount % 40 === 0) out('count', players.size);
+  }, 1000 / RULES.tick);
+
+  return net;
+}
+const net = createLocalServer();
+
+/* ================================================================
+   KLIEN — HUD, input, render
+   ================================================================ */
 const hudEls = {
   hpNum: $('#hp-num'), hpBar: $('#hp-bar'), amMag: $('#am-mag'), amRes: $('#am-res'),
   wname: $('#wname'), slots: $('#slots'), cross: $('#crosshair'), chDot: $('#ch-dot'),
@@ -961,10 +1311,10 @@ function updateScoreHUD() {
 function addKillFeed(e) {
   const d = document.createElement('div');
   d.className = 'kf';
-  d.innerHTML = `<span class="nm ${e.kTeam === 'A' ? 'ta' : 'tb'}">${esc(e.kName)}</span>` +
+  d.innerHTML = `<span class="${e.kTeam === 'A' ? 'ta' : 'tb'}">${esc(e.kName)}</span>` +
     `<span class="w">${WEAPONS[e.w] ? WEAPONS[e.w].name : '—'}</span>` +
     (e.head ? '<span class="hs">HS</span>' : '') +
-    `<span class="nm ${e.vTeam === 'A' ? 'ta' : 'tb'}">${esc(e.vName)}</span>`;
+    `<span class="${e.vTeam === 'A' ? 'ta' : 'tb'}">${esc(e.vName)}</span>`;
   hudEls.killfeed.appendChild(d);
   while (hudEls.killfeed.children.length > 6) hudEls.killfeed.firstChild.remove();
   setTimeout(() => { d.classList.add('out'); setTimeout(() => d.remove(), 350); }, 6000);
@@ -1007,7 +1357,7 @@ function showHitDir(from) {
   hdT = setTimeout(() => hudEls.hitdir.style.opacity = 0, 600);
 }
 function buildScoreboard() {
-  $('#sb-meta').textContent = `${MAP.name} • ${MAP.mode} • TARGET ${MAP.target} KILL • PING ${S.ping} MS`;
+  $('#sb-meta').textContent = `${MAP.name} • ${MAP.mode} • TARGET ${MAP.target} KILL • LOKAL`;
   const rows = { A: [], B: [] };
   rows[S.team].push({ n: S.myName, k: S.selfK, d: S.selfD, me: 1 });
   S.board.forEach(q => rows[q.t] && rows[q.t].push(q));
@@ -1021,60 +1371,42 @@ function buildScoreboard() {
   $('#sb-body').innerHTML = mk('A', 'TIM SERANG') + mk('B', 'TIM TAHAN');
 }
 
-/* ---------- jaringan ---------- */
-const socket = io();
-function netStatus(state, txt) {
-  $('#net-dot').className = 'dot ' + state;
-  $('#net-txt').textContent = txt;
-}
-socket.on('connect', () => netStatus('on', 'SERVER ONLINE'));
-socket.on('disconnect', () => {
-  netStatus('off', 'SERVER OFFLINE');
-  if (S.inMatch) resetToMenu('Koneksi terputuh.');
-});
-socket.on('connect_error', () => netStatus('off', 'SERVER OFFLINE'));
-socket.on('count', n => $('#cnt').textContent = n);
-setInterval(() => { if (socket.connected) socket.emit('ping', Date.now()); }, 2000);
-socket.on('pong', t => S.ping = Date.now() - t);
-
-socket.on('join:ok', d => {
+/* ---------------- handler event server-lokal ---------------- */
+net.on('count', n => { $('#cnt').textContent = n; });
+net.on('join:ok', d => {
   setPlayBusy(false);
   $('#join-err').textContent = '';
   enterGame(d);
 });
-socket.on('join:err', d => {
+net.on('join:err', d => {
   setPlayBusy(false);
   $('#join-err').textContent = d.msg || 'Gagal masuk match.';
-  const w = document.querySelector('cap-widget');
-  if (w && w.reset) w.reset();
+  rebuildCapWidget();
 });
-socket.on('snap', arr => {
-  if (!S.inMatch || !Array.isArray(arr)) return;
+net.on('snap', arr => {
+  if (!Array.isArray(arr)) return;
   const seen = new Set();
   for (const q of arr) {
     seen.add(q.id);
-    if (q.id === S.myId) {
-      S.myHp = q.hp; S.selfK = q.k; S.selfD = q.d;
-      continue;
-    }
-    let r = remotes.get(q.id) || addRemote(q);
+    if (q.id === S.myId) { S.myHp = q.hp; S.selfK = q.k; S.selfD = q.d; continue; }
+    const r = ensureRemote(q); // fix: tidak menduplikasi remote saat rejoin
     r.net.pos.set(q.x, q.y, q.z);
     r.net.yaw = q.yaw; r.net.pitch = q.pitch;
-    r.moving = !!q.mv; r.crouch = !!q.c;
     if (!q.a && r.alive) r.deadAt = performance.now();
+    const respawned = q.a && !r.alive;
     r.alive = !!q.a;
+    if (respawned) { r.g.position.copy(r.net.pos); r.g.rotation.x = 0; } // fix: tanpa "pop" interpolasi
+    r.moving = !!q.mv; r.crouch = !!q.c;
     if (r.hp !== q.hp) { r.hp = q.hp; drawTagOn(r.g, r.name, r.hp, r.team); }
     setRemoteGun(r, q.w);
-    S.board.set(q.id, { n: q.n, t: q.t, k: q.k, d: q.d });
+    if (S.inMatch) S.board.set(q.id, { n: q.n, t: q.t, k: q.k, d: q.d });
   }
   for (const id of [...remotes.keys()]) if (!seen.has(id)) removeRemote(id);
 });
-socket.on('player:join', e => { if (S.inMatch) toast(`${e.n} bergabung ke tim ${e.t === 'A' ? 'SERANG' : 'TAHAN'}`); });
-socket.on('player:leave', e => { removeRemote(e.id); if (S.inMatch) toast(`${e.n} keluar dari match`); });
-socket.on('shot', e => {
-  if (!S.inMatch || !e || e.id === S.myId || !e.o || !e.d) return;
+net.on('shot', e => {
+  if (!e || !e.o || !e.d) return;
   const wp = WEAPONS[e.w];
-  if (!wp || wp.melee) return;
+  if (!wp || wp.melee || e.id === S.myId) return;
   const ov = new THREE.Vector3(e.o[0], e.o[1], e.o[2]);
   const dv = new THREE.Vector3(e.d[0], e.d[1], e.d[2]);
   const hit = clientRaycast(ov, dv, wp.range, e.id);
@@ -1083,27 +1415,34 @@ socket.on('shot', e => {
   const start = r ? r.gunP.getWorldPosition(new THREE.Vector3()) : ov.clone().addScaledVector(dv, 0.9);
   spawnTracer(start, end, wp.tracer);
   if (hit) impactFX(hit);
-  // suara tembakan posisional (volume + pan)
-  const ex = eyePos();
-  const dist = ov.distanceTo(ex);
-  const dx = ov.x - ex.x, dz = ov.z - ex.z;
-  const sy = Math.sin(yaw), cy = Math.cos(yaw);
-  const rx = dx * cy - dz * sy, rz = dx * sy + dz * cy;
-  sfx.shot(e.w, dist, Math.sin(Math.atan2(rx, -rz)) * 0.8);
+  if (S.inMatch) { // suara hanya saat bermain (menu tetap senyap)
+    const ex = eyePos();
+    const dist = ov.distanceTo(ex);
+    const dx = ov.x - ex.x, dz = ov.z - ex.z;
+    const sy = Math.sin(yaw), cy = Math.cos(yaw);
+    const rx = dx * cy - dz * sy, rz = dx * sy + dz * cy;
+    sfx.shot(e.w, dist, Math.sin(Math.atan2(rx, -rz)) * 0.8);
+  }
 });
-socket.on('dmg', e => {
+net.on('dmg', e => {
+  if (!S.inMatch) return;
   S.myHp = e.hp != null ? e.hp : S.myHp;
   flashVignette(e.dmg);
   sfx.hurt();
   if (e.fromPos) showHitDir(e.fromPos);
 });
-socket.on('hit', e => { hitmarkFlash(e.head); sfx.hit(e.head); });
-socket.on('death', e => {
+net.on('hit', e => {
+  if (!S.inMatch) return;
+  hitmarkFlash(e.head);
+  sfx.hit(e.head);
+});
+net.on('death', e => {
+  const r = remotes.get(e.victim);
+  if (r) { r.alive = false; r.deadAt = performance.now(); }
+  if (!S.inMatch) return; // di menu: bot mati hanya visual
   S.scores = e.scores;
   updateScoreHUD();
   addKillFeed(e);
-  const r = remotes.get(e.victim);
-  if (r) { r.alive = false; r.deadAt = performance.now(); }
   if (e.victim === S.myId) {
     S.alive = false; S.myHp = 0;
     fireHeld = false; adsHeld = false; S.reloading = 0;
@@ -1111,7 +1450,7 @@ socket.on('death', e => {
     respawnSent = false;
     hudEls.deathBy.innerHTML = `oleh <b class="${e.kTeam === 'A' ? 'ta' : 'tb'}">${esc(e.kName)}</b> ` +
       `<span class="w">[${WEAPONS[e.w] ? WEAPONS[e.w].name : e.w}]</span>` +
-      (e.head ? ' <span class="hs" style="color:var(--red);font-weight:700">HEADSHOT</span>' : '');
+      (e.head ? ' <span style="color:var(--red);font-weight:700">HEADSHOT</span>' : '');
     hudEls.death.classList.remove('hidden');
   }
   if (e.killer === S.myId && e.victim !== S.myId) {
@@ -1119,16 +1458,18 @@ socket.on('death', e => {
     centerMsg('ELIMINASI — ' + e.vName);
   }
 });
-socket.on('score', s => { S.scores = s; updateScoreHUD(); });
-socket.on('respawn:ok', e => {
+net.on('score', s => { S.scores = s; updateScoreHUD(); });
+net.on('respawn:ok', e => {
   S.alive = true; S.myHp = e.hp; respawnSent = false;
   P.pos.set(e.pos[0], e.pos[1], e.pos[2]);
   P.vel.set(0, 0, 0);
   yaw = e.yaw; pitch = 0; camRoll = 0;
+  initAmmo(); // fix: resupply amunisi saat respawn
   hudEls.death.classList.add('hidden');
   switchTo(loadout.primary, true);
 });
-socket.on('match:end', e => {
+net.on('match:end', e => {
+  if (!S.inMatch) return;
   hudEls.bannerT.textContent = (e.winner === S.team ? 'KEMENANGAN' : 'KEKALAHAN') +
     ' — TIM ' + (e.winner === 'A' ? 'SERANG' : 'TAHAN');
   hudEls.bannerT.style.color = e.winner === S.team ? 'var(--acc)' : 'var(--red)';
@@ -1138,10 +1479,10 @@ socket.on('match:end', e => {
   setTimeout(() => hudEls.banner.classList.add('hidden'), 5500);
 });
 
-/* ---------- alur masuk/keluar match ---------- */
+/* ---------------- alur masuk/keluar match ---------------- */
 function enterGame(d) {
   S.myId = d.id; S.myName = d.name; S.team = d.team;
-  S.inMatch = true; S.phase = 'game'; S.alive = true; S.myHp = 100;
+  S.inMatch = true; S.phase = 'game'; S.entered = false; S.alive = true; S.myHp = 100;
   S.selfK = 0; S.selfD = 0; S.board.clear(); S.scores = d.scores;
   initAmmo();
   P.pos.set(d.pos[0], d.pos[1], d.pos[2]);
@@ -1150,59 +1491,155 @@ function enterGame(d) {
   S.cur = d.primary; S.last = 'pistol';
   S.reloading = 0; S.ads = 0;
   buildVM(S.cur);
+  vm.visible = false;
   for (const q of d.players) {
     if (q.id === S.myId) continue;
-    addRemote(q);
+    ensureRemote(q);
     S.board.set(q.id, { n: q.n, t: q.t, k: q.k, d: q.d });
   }
-  const w = document.querySelector('cap-widget');
-  if (w && w.reset) w.reset(); // token terpakai — wajib verifikasi ulang lain waktu
+  rebuildCapWidget(); // token terpakai → wajib verifikasi ulang untuk masuk lagi
   $('#menu').classList.add('hidden');
   $('#hud').classList.remove('hidden');
   hudEls.startlock.classList.remove('hidden');
-  $('#mapline-hud').textContent = `${MAP.name} • ${MAP.mode} • TARGET ${MAP.target} KILL`;
+  $('#mapline-hud').textContent = `${MAP.name} • ${MAP.mode} • TARGET ${MAP.target} KILL • LOKAL 5v5`;
   updateScoreHUD(); updateWeaponHUD();
   hudC.hp = -1;
+  toast('MATCH LOKAL DIMULAI — 5v5 MELAWAN BOT');
 }
 function resetToMenu(msg) {
-  socket.emit('game:leave');
+  net.emit('game:leave');
   S.inMatch = false; S.phase = 'menu'; S.entered = false; S.alive = false; S.locked = false;
-  for (const id of [...remotes.keys()]) removeRemote(id);
+  S.myId = null; S.board.clear();
   hudEls.killfeed.innerHTML = '';
   ['#hud', '#death', '#pause', '#startlock', '#banner', '#scoreboard', '#scope'].forEach(s => $(s).classList.add('hidden'));
   $('#menu').classList.remove('hidden');
   vm.visible = false;
   fireHeld = false; adsHeld = false;
+  // remote bot TIDAK dihapus — pertandingan bot lanjut sebagai latar menu yang hidup
   if (msg) toast(msg);
 }
 function setPlayBusy(b) {
   const btn = $('#btn-play');
   btn.disabled = b;
-  btn.textContent = b ? 'MEMVERIFIKASI…' : 'MASUK MATCH';
+  btn.textContent = b ? 'MEMPROSES…' : 'MASUK MATCH';
 }
 
-/* ---------- tombol PLAY + captcha ---------- */
+/* ================================================================
+   CAPTCHA Cap.js — versi diperbaiki (polling + deteksi multi-API + probe)
+   ================================================================ */
+const CAP_ENDPOINT = 'https://cap-production-5a17.up.railway.app/7296970bcc/';
+function capWidgetEl() { return document.querySelector('cap-widget'); }
+function readCapToken(w) {
+  if (!w) return null;
+  try {
+    if (typeof w.getResponse === 'function') {
+      const r = w.getResponse();
+      if (Array.isArray(r) && r.length) return String(r[0]);
+      if (typeof r === 'string' && r) return r;
+    }
+    if (Array.isArray(w.tokens) && w.tokens.length) return String(w.tokens[0]);
+    if (typeof w.token === 'string' && w.token) return w.token;
+    if (typeof w.solvedToken === 'string' && w.solvedToken) return w.solvedToken;
+  } catch (e) {}
+  return null;
+}
+function readCapSolved(w) {
+  if (!w) return false;
+  if (readCapToken(w)) return true;
+  try {
+    if (w.solved === true) return true;
+    if (w.hasAttribute && (w.hasAttribute('solved') || w.hasAttribute('data-solved'))) return true;
+    const st = ' ' + String(w.getAttribute('state') || w.state || '') + ' ';
+    // token penuh agar "unsolved" tidak salah cocok
+    if (/(?:^|[\s\-_])(?:solved|success|done|complete|verified)(?:$|[\s\-_])/i.test(st)) return true;
+  } catch (e) {}
+  return false;
+}
+let capSolvedFlag = false;
+function pollCap() {
+  const w = capWidgetEl();
+  const solved = readCapSolved(w);
+  if (solved !== capSolvedFlag) {
+    capSolvedFlag = solved;
+    const el = $('#cap-state');
+    el.textContent = solved ? 'VERIFIKASI SELESAI — token siap dipakai.' : '';
+    el.classList.toggle('ok', solved);
+    $('#capwrap').classList.toggle('ok', solved);
+  }
+}
+setInterval(pollCap, 300); // fix inti: polling, bukan baca sekali saat klik
+function watchCap(w) {
+  if (!w || !w.addEventListener) return;
+  ['solve', 'solved', 'success', 'complete', 'submit', 'verified'].forEach(ev => {
+    try { w.addEventListener(ev, () => setTimeout(pollCap, 60)); } catch (e) {}
+  });
+}
+watchCap(capWidgetEl());
+function rebuildCapWidget() { // reset terjamin: elemen diganti baru
+  const old = capWidgetEl();
+  capSolvedFlag = false;
+  $('#cap-state').textContent = '';
+  $('#cap-state').classList.remove('ok');
+  $('#capwrap').classList.remove('ok');
+  if (!old) return;
+  const n = document.createElement('cap-widget');
+  n.setAttribute('data-cap-api-endpoint', CAP_ENDPOINT);
+  old.replaceWith(n);
+  watchCap(n);
+}
+ $('#capwrap').addEventListener('click', () => {
+  if (!capSolvedFlag) $('#cap-state').textContent = 'Memproses verifikasi… tunggu sebentar.';
+});
+ $('#cap-reload').addEventListener('click', () => {
+  rebuildCapWidget();
+  probeCap();
+  $('#cap-net').textContent = 'Memuat ulang widget captcha…';
+});
+function probeCap() { // deteksi endpoint hidup/mati → pesan jelas, bukan error membingungkan
+  const netEl = $('#cap-net');
+  if (window.__capFail) {
+    netEl.textContent = 'Skrip captcha gagal dimuat — periksa koneksi internet.';
+    netEl.classList.add('bad');
+    return;
+  }
+  const ctl = ('AbortController' in window) ? new AbortController() : null;
+  if (ctl) setTimeout(() => { try { ctl.abort(); } catch (e) {} }, 6000);
+  fetch(CAP_ENDPOINT, { mode: 'no-cors', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+    .then(() => { netEl.textContent = 'Layanan captcha terjangkau.'; netEl.classList.remove('bad'); })
+    .catch(() => {
+      netEl.textContent = 'Layanan captcha TIDAK terjangkau — cek koneksi lalu klik MUAT ULANG.';
+      netEl.classList.add('bad');
+    });
+}
+probeCap();
+
+/* tombol PLAY: gate captcha dengan pesan yang membedakan tiap keadaan */
  $('#btn-play').addEventListener('click', () => {
-  const w = document.querySelector('cap-widget');
-  let token = null;
-  try { const r = w.getResponse(); token = Array.isArray(r) ? r[0] : r; } catch (e) {}
-  if (!token) { $('#join-err').textContent = 'Selesaikan verifikasi bot terlebih dahulu.'; return; }
-  if (!socket.connected) { $('#join-err').textContent = 'Server belum terhubung — tunggu sebentar.'; return; }
+  pollCap();
+  const w = capWidgetEl();
+  const token = readCapToken(w);
+  if (!token && !readCapSolved(w)) {
+    const err = $('#join-err');
+    if (window.__capFail) err.textContent = 'Skrip captcha belum termuat — periksa koneksi lalu klik MUAT ULANG CAPTCHA.';
+    else err.textContent = 'Selesaikan verifikasi bot dulu: klik kotak CAP di panel ini, tunggu status "VERIFIKASI SELESAI", lalu tekan tombol ini lagi.';
+    return;
+  }
+  if (!net.connected) { $('#join-err').textContent = 'Server lokal belum siap.'; return; }
   $('#join-err').textContent = '';
   const name = $('#name').value.trim();
   localStorage.setItem('sv_name', name);
   setPlayBusy(true);
-  socket.emit('game:join', { name, loadout, token });
+  net.emit('game:join', { name, loadout, token: token || 'local-' + Date.now() });
 });
 
-/* ---------- menu: navigasi, arsenal, loadout, pengaturan ---------- */
+/* ---------------- menu: navigasi, arsenal, loadout, pengaturan ---------------- */
 let arsenalOpen = false;
 document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
   const v = b.dataset.view;
   document.querySelectorAll('.m-right section').forEach(s => s.classList.toggle('hidden', s.id !== 'view-' + v));
   arsenalOpen = v === 'arsenal';
-  if (arsenalOpen) arRender();
+  if (arsenalOpen) arSet(arKey || 'rifle');
 }));
  $('#mapline-menu').textContent = `${MAP.name} • ${MAP.mode} • TARGET ${MAP.target} KILL • 2 TIM`;
  $('#name').value = localStorage.getItem('sv_name') || '';
@@ -1211,7 +1648,7 @@ function refreshSummary() {
 }
 refreshSummary();
 
-/* pratinjau senjata 3D (renderer mini) */
+/* pratinjau senjata 3D */
 const arR = new THREE.WebGLRenderer({ canvas: $('#ar-canvas'), alpha: true, antialias: true });
 arR.setPixelRatio(Math.min(2, window.devicePixelRatio));
 arR.setSize(380, 250, false);
@@ -1248,7 +1685,6 @@ function arSet(key) {
     el.classList.toggle('eq', el.dataset.k === loadout.primary);
   });
 }
-function arRender() { arSet(arKey || 'rifle'); }
 for (const key of ['rifle', 'smg', 'sniper', 'pistol', 'knife']) {
   const b = document.createElement('button');
   b.className = 'ar-item';
@@ -1266,8 +1702,6 @@ for (const key of ['rifle', 'smg', 'sniper', 'pistol', 'knife']) {
   buildLoadoutUI();
   toast('Senjata utama diganti: ' + WEAPONS[arKey].name);
 });
-
-/* loadout */
 function buildLoadoutUI() {
   const el = $('#lo-list');
   el.innerHTML = '';
@@ -1328,9 +1762,137 @@ function applySettings() {
 applySettings();
 if (document.fonts && document.fonts.load) document.fonts.load('700 26px Rajdhani');
 
-/* ---------- input ---------- */
+/* ---------------- gerakan & tabrakan (prediksi klien) ---------------- */
+const P = { pos: new THREE.Vector3(0, 0, 20), vel: new THREE.Vector3(), ground: true, crouch: false, h: 1.8, step: 0 };
+function collideAxis(axis, delta) {
+  const r = 0.35, h = P.h;
+  P.pos[axis] += delta;
+  if (axis === 'y' && P.pos.y < 0) { P.pos.y = 0; P.vel.y = 0; P.ground = true; }
+  for (const s of solids) {
+    if (P.pos.x - r >= s.max[0] || P.pos.x + r <= s.min[0] ||
+        P.pos.z - r >= s.max[2] || P.pos.z + r <= s.min[2] ||
+        P.pos.y >= s.max[1] || P.pos.y + h <= s.min[1]) continue;
+    if (axis === 'y') {
+      if (delta <= 0) { P.pos.y = s.max[1]; P.ground = true; }
+      else { P.pos.y = s.min[1] - h; }
+      P.vel.y = 0;
+    } else {
+      const ai = axis === 'x' ? 0 : 2;
+      P.pos[axis] = delta > 0 ? s.min[ai] - r : s.max[ai] + r;
+      P.vel[axis] = 0;
+    }
+  }
+}
+function updateLocal(dt) {
+  P.crouch = !!(keys.ControlLeft || keys.KeyC);
+  P.h = lerp(P.h, P.crouch ? 1.25 : 1.8, 1 - Math.exp(-12 * dt));
+  const f = (keys.KeyW ? 1 : 0) - (keys.KeyS ? 1 : 0);
+  const s = (keys.KeyD ? 1 : 0) - (keys.KeyA ? 1 : 0);
+  const spd = P.crouch ? 2.3 : keys.ShiftLeft ? 2.7 : 5.4;
+  const sy = Math.sin(yaw), cy = Math.cos(yaw);
+  let wx = -sy * f + cy * s, wz = -cy * f - sy * s;
+  const wl = Math.hypot(wx, wz);
+  if (wl > 0) { wx /= wl; wz /= wl; }
+  const acc = P.ground ? 55 : 9;
+  P.vel.x += wx * acc * dt; P.vel.z += wz * acc * dt;
+  if (P.ground && wl === 0) { const fr = Math.exp(-11 * dt); P.vel.x *= fr; P.vel.z *= fr; }
+  const hv = Math.hypot(P.vel.x, P.vel.z);
+  if (hv > spd) { const k = spd / hv; P.vel.x *= k; P.vel.z *= k; }
+  P.vel.y -= 24 * dt;
+  if (P.ground && keys.Space) { P.vel.y = 7.6; P.ground = false; }
+  P.ground = false;
+  collideAxis('x', P.vel.x * dt);
+  collideAxis('z', P.vel.z * dt);
+  collideAxis('y', P.vel.y * dt);
+  if (P.ground && hv > 2) { P.step += hv * dt; if (P.step > 2.6) { P.step = 0; sfx.step(); } }
+}
+function forwardVec() {
+  const cp = Math.cos(pitch);
+  return new THREE.Vector3(-Math.sin(yaw) * cp, Math.sin(pitch), -Math.cos(yaw) * cp);
+}
+function eyePos() { return new THREE.Vector3(P.pos.x, P.pos.y + P.h - 0.18, P.pos.z); }
+function curSpread() {
+  const wp = WEAPONS[S.cur];
+  const base = S.ads > 0.5 ? wp.adsSpread : wp.spread;
+  return base * (Math.hypot(P.vel.x, P.vel.z) > 1.5 ? 1.7 : 1) * (P.ground ? 1 : 2.6) * (P.crouch ? 0.75 : 1);
+}
+
+/* ---------------- menembak / reload / ganti senjata ---------------- */
+function tryFire(now) {
+  if (!S.inMatch || !S.alive || !S.locked || S.reloading || now < S.switchEnd || now < S.nextFireAt) return;
+  const wp = WEAPONS[S.cur];
+  if (wp.melee) {
+    S.nextFireAt = now + 60000 / wp.rpm;
+    swingT = 1;
+    sfx.shot('knife');
+    const d = forwardVec();
+    net.emit('shoot', { w: 'knife', d: [d.x, d.y, d.z] });
+    return;
+  }
+  const a = ammo[S.cur];
+  if (a.mag <= 0) { sfx.empty(); S.nextFireAt = now + 220; tryReload(); return; }
+  a.mag--;
+  S.nextFireAt = now + 60000 / wp.rpm;
+  const d = forwardVec();
+  const sp = curSpread();
+  d.x += (Math.random() * 2 - 1) * sp;
+  d.y += (Math.random() * 2 - 1) * sp;
+  d.z += (Math.random() * 2 - 1) * sp;
+  d.normalize();
+  const kf = wp.kick * (S.ads > 0.5 ? 0.6 : 1);
+  pitch = Math.min(1.55, pitch + kf * 0.0095);
+  yaw += (Math.random() - 0.5) * kf * 0.0032;
+  vmKick = Math.min(vmKick + wp.kick * 0.9, 5);
+  flashT = 1;
+  flashSpr.scale.set(0.15 + Math.random() * 0.12, 0.15 + Math.random() * 0.12, 1);
+  flashSpr.material.rotation = Math.random() * 6.28;
+  sfx.shot(S.cur);
+  // visual tracer/dampak; damage divalidasi server-lokal (otoritatif)
+  const o = eyePos();
+  const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+  const muz = o.clone().addScaledVector(d, 0.6).addScaledVector(right, 0.2 * (1 - S.ads));
+  muz.y -= 0.14 * (1 - S.ads);
+  const hit = clientRaycast(o, d, wp.range, S.myId);
+  const end = hit ? hit.point : o.clone().addScaledVector(d, Math.min(wp.range, 90));
+  spawnTracer(muz, end, wp.tracer);
+  if (hit) impactFX(hit);
+  net.emit('shoot', { w: S.cur, d: [d.x, d.y, d.z] });
+  updateWeaponHUD();
+}
+function tryReload() {
+  const wp = WEAPONS[S.cur];
+  if (wp.melee || S.reloading || performance.now() < S.switchEnd) return;
+  const a = ammo[S.cur];
+  if (!a || a.mag >= wp.mag || a.reserve <= 0) return;
+  S.reloading = performance.now() + wp.reload * 1000;
+  sfx.reload();
+}
+function finishReload() {
+  const wp = WEAPONS[S.cur], a = ammo[S.cur];
+  const take = Math.min(wp.mag - a.mag, a.reserve);
+  a.mag += take; a.reserve -= take;
+  S.reloading = 0;
+  updateWeaponHUD();
+}
+function switchTo(key, instant) {
+  if (!S.inMatch || !S.alive || key === S.cur || !WEAPONS[key]) return;
+  S.last = S.cur;
+  S.cur = key;
+  S.switchEnd = performance.now() + (instant ? 200 : 380);
+  S.reloading = 0; S.ads = 0;
+  buildVM(key);
+  if (!instant) sfx.swap();
+  net.emit('switch', { w: key });
+  updateWeaponHUD();
+}
+
+/* ---------------- input ---------------- */
 document.addEventListener('keydown', e => {
-  if (e.code === 'Tab') { e.preventDefault(); if (S.inMatch) { buildScoreboard(); $('#scoreboard').classList.remove('hidden'); } return; }
+  if (e.code === 'Tab') {
+    e.preventDefault();
+    if (S.inMatch) { buildScoreboard(); $('#scoreboard').classList.remove('hidden'); }
+    return;
+  }
   keys[e.code] = true;
   if (!S.inMatch) return;
   if (e.code === 'KeyR') tryReload();
@@ -1346,7 +1908,7 @@ document.addEventListener('keyup', e => {
 });
 document.addEventListener('mousemove', e => {
   if (!S.locked) return;
-  const zf = clamp(camera.fov / settings.fov, 0.2, 1); // zoom sensitivitas saat ADS/scope
+  const zf = clamp(camera.fov / settings.fov, 0.2, 1);
   yaw -= e.movementX * 0.0022 * settings.sens * zf;
   pitch = clamp(pitch - e.movementY * 0.0022 * settings.sens * zf, -1.55, 1.55);
 });
@@ -1382,9 +1944,9 @@ document.addEventListener('pointerlockchange', () => {
   }
 });
  $('#btn-resume').addEventListener('click', () => requestLock());
- $('#btn-leave').addEventListener('click', () => resetToMenu('Keluar dari match.'));
+ $('#btn-leave').addEventListener('click', () => resetToMenu('Keluar dari match — pertandingan bot berlanjut di latar.'));
 
-/* ---------- update kamera & viewmodel ---------- */
+/* ---------------- update kamera & viewmodel ---------------- */
 function updateCamera(dt, now) {
   yawObj.position.copy(P.pos);
   pitchObj.position.y = P.h - 0.18;
@@ -1400,14 +1962,14 @@ function updateCamera(dt, now) {
 }
 function updateVM(dt, now) {
   const wp = WEAPONS[S.cur];
-  const sw = clamp((S.switchEnd - now) / 380, 0, 1);            // animasi ganti senjata
-  let rl = 0;                                                    // pose reload
+  const swT = clamp((S.switchEnd - now) / 380, 0, 1);
+  let rl = 0;
   if (S.reloading) {
     const total = wp.reload * 1000, rem = S.reloading - now;
     rl = Math.sin(clamp(rem / total, 0, 1) * Math.PI);
   }
   swingT = Math.max(0, swingT - dt * 5);
-  const swing = Math.sin(swingT * Math.PI);                      // ayunan pisau
+  const swing = Math.sin(swingT * Math.PI);
   const hv = Math.hypot(P.vel.x, P.vel.z);
   const bAmt = P.ground ? clamp(hv / 5.4, 0, 1) * (1 - S.ads * 0.8) : 0;
   bobT += dt * (2 + hv * 1.35);
@@ -1415,10 +1977,10 @@ function updateVM(dt, now) {
   const by = -Math.abs(Math.sin(bobT)) * 0.011 * bAmt;
   vmKick *= Math.exp(-9 * dt);
   const ax = lerp(0.26, 0.02, S.ads), ay = lerp(-0.27, -0.16, S.ads), az = lerp(-0.5, -0.38, S.ads);
-  let py = ay + by - sw * 0.25 - rl * 0.14 - swing * 0.05;
-  if (!S.alive) { py -= 0.22; }
+  let py = ay + by - swT * 0.25 - rl * 0.14 - swing * 0.05;
+  if (!S.alive) py -= 0.22;
   vm.position.set(ax + bx, py, az + vmKick * 0.07 - swing * 0.1);
-  vm.rotation.set(vmKick * 0.16 + sw * 0.85 + rl * 0.7 + swing * 1.1, lerp(0.05, 0.02, S.ads), 0);
+  vm.rotation.set(vmKick * 0.16 + swT * 0.85 + rl * 0.7 + swing * 1.1, lerp(0.05, 0.02, S.ads), 0);
   vm.visible = S.phase === 'game' && S.alive && !(wp.scoped && S.ads > 0.8);
   flashT = Math.max(0, flashT - dt * 14);
   flashSpr.visible = flashT > 0.02;
@@ -1450,12 +2012,12 @@ function updateRemotes(dt, now) {
   }
 }
 
-/* ---------- kirim gerak + respawn ---------- */
+/* ---------------- kirim gerak + respawn ---------------- */
 let lastMove = 0;
 function maybeSendMove(now) {
   if (!S.alive || now - lastMove < 50) return;
   lastMove = now;
-  socket.emit('move', {
+  net.emit('move', {
     p: [+P.pos.x.toFixed(2), +P.pos.y.toFixed(2), +P.pos.z.toFixed(2)],
     yaw: +yaw.toFixed(3), pitch: +pitch.toFixed(3),
     crouch: P.crouch, moving: Math.hypot(P.vel.x, P.vel.z) > 1,
@@ -1465,35 +2027,39 @@ function respawnTick(now) {
   hudEls.respCd.textContent = Math.max(0, Math.ceil((S.respawnAt - now) / 1000));
   if (S.respawnAt - now <= 0 && !respawnSent) {
     respawnSent = true;
-    socket.emit('respawn');
+    net.emit('respawn');
   }
 }
 
-/* ---------- loop utama ---------- */
+/* ---------------- loop utama ---------------- */
 window.addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
   camera.aspect = menuCam.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   menuCam.updateProjectionMatrix();
 });
-let lastT = performance.now(), menuT = 0, fpsFrames = 0, fps = 0;
+let lastT = performance.now(), menuT = 0, fpsFrames = 0;
 setInterval(() => {
-  fps = fpsFrames * 2; fpsFrames = 0;
-  hudEls.netinfo.textContent = (settings.fps ? `FPS ${fps} • ` : '') + `PING ${S.ping} MS`;
+  const fps = fpsFrames * 2; fpsFrames = 0;
+  hudEls.netinfo.textContent = (settings.fps ? `FPS ${fps} • ` : '') + 'LOKAL • 5v5 BOT';
 }, 500);
 function loop(t) {
   requestAnimationFrame(loop);
   const dt = Math.min(0.05, (t - lastT) / 1000);
   lastT = t;
+  const now = performance.now();
   if (S.phase === 'menu') {
+    // menu: kamera orbit + pertandingan bot live di arena (tanpa suara)
     menuT += dt;
     menuCam.position.set(Math.cos(menuT * 0.055) * 30, 15 + Math.sin(menuT * 0.03) * 2.5, Math.sin(menuT * 0.055) * 30);
     menuCam.lookAt(0, 1.2, 0);
+    updateRemotes(dt, now);
+    updateFX(dt);
     renderer.render(scene, menuCam);
     if (arsenalOpen && arW) { arW.rotation.y = Math.sin(t * 0.0007) * 0.7; arR.render(arScene, arCam); }
+    fpsFrames++;
     return;
   }
-  const now = performance.now();
   if (S.locked && S.alive) updateLocal(dt);
   updateCamera(dt, now);
   updateVM(dt, now);
