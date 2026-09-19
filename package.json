@@ -1,6 +1,6 @@
 {
   "name": "strike-vector",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "FPS arena multiplayer browser — terinspirasi CS2",
   "main": "server.js",
   "scripts": { "start": "node server.js" },
