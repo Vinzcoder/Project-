@@ -1,5 +1,6 @@
 /**
  * STRIKE VECTOR — server game (Express + Socket.io + verifikasi Cap.js)
+ * v1.1 — perbaikan verifikasi captcha, multiplayer penuh, anti-teleport, chat.
  * Jalankan: npm install && node server.js  →  http://localhost:3000
  */
 const express = require('express');
@@ -11,6 +12,7 @@ const { WEAPONS, PRIMARIES, MAP, RULES, buildSolids, rayAABB } = require('./shar
 const PORT = process.env.PORT || 3000;
 const CAP_SECRET = process.env.CAP_SECRET || 'sk-rklEjxQyhgoaoo2bLUpgr5CFKAPZiUak1jncBumoQXo';
 const CAP_VERIFY_URL = 'https://cap-production-5a17.up.railway.app/siteverify';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
@@ -20,7 +22,6 @@ app.get('/healthz', (_, res) => res.json({ ok: true, players: players.size }));
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, { cors: { origin: '*' } });
 
-/* ---------- keadaan match ---------- */
 const players = new Map();     // socket.id -> data pemain
 const usedTokens = new Set();  // anti-replay token captcha
 let scores = { A: 0, B: 0 };
@@ -28,20 +29,25 @@ let matchOver = false;
 
 const solids = buildSolids();
 
-/* ---------- verifikasi captcha Cap.js (sesuai spec) ---------- */
-async function verifyCap(token) {
-  try {
-    const res = await fetch(CAP_VERIFY_URL, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ secret: CAP_SECRET, response: token }),
-    });
-    const { success } = await res.json();
-    return !!success;
-  } catch (e) {
-    console.error('[cap] layanan verifikasi tidak terjangkau:', e.message);
-    return null; // null = gagal jaringan, bukan token salah
+/* ---------- FIX #1: verifikasi captcha sekarang robust ----------
+   Widget mengirim array token; beberapa versi endpoint siteverify hanya
+   menerima string. Kita coba KEDUA bentuknya sebelum menyatakan gagal. */
+async function verifyCapTokens(tokens) {
+  for (const response of [tokens, tokens[0]]) {
+    try {
+      const res = await fetch(CAP_VERIFY_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ secret: CAP_SECRET, response }),
+      });
+      const data = await res.json();
+      if (data && data.success) return true;
+    } catch (e) {
+      console.error('[cap] layanan verifikasi tidak terjangkau:', e.message);
+      return null; // gagal jaringan — BUKAN token salah
+    }
   }
+  return false;
 }
 
 /* ---------- util ---------- */
@@ -60,7 +66,7 @@ function spawnPos(team) {
   return { x: s[0] + (Math.random() - 0.5) * 1.6, y: 0, z: s[1] + (Math.random() - 0.5) * 1.6 };
 }
 
-/* ---------- raycast otoritatif (damage dihitung di sini) ---------- */
+/* ---------- raycast otoritatif (damage dihitung di server) ---------- */
 function castRay(ox, oy, oz, dx, dy, dz, excludeId, maxT) {
   let bestT = maxT, hitPlayer = null, head = false;
   for (const s of solids) {
@@ -75,7 +81,7 @@ function castRay(ox, oy, oz, dx, dy, dz, excludeId, maxT) {
     const t = rayAABB(ox, oy, oz, dx, dy, dz, min, max);
     if (t !== null && t > 0.001 && t < bestT) {
       bestT = t; hitPlayer = p;
-      head = oy + dy * t > p.pos.y + RULES.hb.head; // kriteria headshot
+      head = oy + dy * t > p.pos.y + RULES.hb.head;
     }
   }
   return hitPlayer ? { t: bestT, type: 'player', p: hitPlayer, head }
@@ -106,22 +112,31 @@ function leaveGame(socket, reason) {
   console.log(`[-] ${p.name} keluar (${reason || 'disconnect'}) — ${players.size} pemain`);
 }
 
-/* ---------- koneksi socket ---------- */
+/* ---------- koneksi ---------- */
 io.on('connection', (socket) => {
   socket.emit('count', players.size);
 
-  socket.on('game:join', async ({ name, loadout, token } = {}) => {
+  socket.on('game:join', async ({ name, loadout, cap } = {}) => {
     if (socket.data.joining || players.has(socket.id)) return;
-    if (typeof token !== 'string' || !token) return socket.emit('join:err', { msg: 'Token verifikasi tidak valid.' });
-    if (usedTokens.has(token)) return socket.emit('join:err', { msg: 'Token verifikasi sudah dipakai. Selesaikan ulang captcha.' });
+
+    // FIX #2: normalisasi token — terima array (hasil getResponse) maupun string
+    let tokens = [];
+    if (typeof cap === 'string' && cap.length > 8) tokens = [cap];
+    else if (Array.isArray(cap)) tokens = cap.filter(t => typeof t === 'string' && t.length > 8).slice(0, 5);
+    if (!tokens.length) return socket.emit('join:err', {
+      msg: 'Token verifikasi tidak terkirim. Selesaikan captcha lalu klik MASUK MATCH lagi.' });
+
+    const tokenKey = tokens.join('|');
+    if (usedTokens.has(tokenKey)) return socket.emit('join:err', {
+      msg: 'Token sudah pernah dipakai. Klik MUAT ULANG WIDGET lalu selesaikan captcha baru.' });
 
     socket.data.joining = true;
     try {
-      const ok = await verifyCap(token);
+      const ok = await verifyCapTokens(tokens);
       if (ok === null) return socket.emit('join:err', { msg: 'Layanan verifikasi tidak dapat dihubungi. Coba beberapa saat lagi.' });
-      if (!ok) return socket.emit('join:err', { msg: 'Verifikasi bot gagal. Selesaikan ulang captcha.' });
+      if (!ok) return socket.emit('join:err', { msg: 'Verifikasi bot gagal. Klik MUAT ULANG WIDGET lalu selesaikan captcha baru.' });
       if (usedTokens.size > 2000) usedTokens.clear();
-      usedTokens.add(token); // satu token = satu kali masuk
+      usedTokens.add(tokenKey);
 
       const nm = String(name || '').replace(/[^\w \-]/g, '').trim().slice(0, 14)
         || 'PEMAIN-' + Math.floor(100 + Math.random() * 900);
@@ -133,7 +148,7 @@ io.on('connection', (socket) => {
         id: socket.id, name: nm, team, primary, weapon: primary,
         pos, yaw: team === 'A' ? Math.PI : 0, pitch: 0,
         hp: RULES.hp, alive: true, kills: 0, deaths: 0,
-        crouch: false, moving: false, lastShot: 0, diedAt: 0,
+        crouch: false, moving: false, lastShot: 0, lastChat: 0, lastMoveT: 0, diedAt: 0,
       };
       players.set(socket.id, p);
 
@@ -143,7 +158,8 @@ io.on('connection', (socket) => {
         players: [...players.values()].map(snapObj),
         scores: { A: scores.A, B: scores.B },
       });
-      socket.broadcast.emit('player:join', { id: p.id, n: nm, t: team });
+      // FIX #3: broadcast state LENGKAP → pemain lain langsung muncul, tanpa nunggu snapshot
+      socket.broadcast.emit('player:join', { p: snapObj(p) });
       io.emit('count', players.size);
       console.log(`[+] ${nm} (${team}) bergabung — ${players.size} pemain`);
     } finally { socket.data.joining = false; }
@@ -152,10 +168,27 @@ io.on('connection', (socket) => {
   socket.on('move', (m) => {
     const p = players.get(socket.id);
     if (!p || !p.alive || !m || !Array.isArray(m.p)) return;
+    const now = Date.now();
     const n = (v, lo, hi) => Math.max(lo, Math.min(hi, +v || 0));
-    p.pos.x = n(m.p[0], -MAP.bound, MAP.bound);
-    p.pos.y = n(m.p[1], 0, 12);
-    p.pos.z = n(m.p[2], -MAP.bound, MAP.bound);
+    let x = n(m.p[0], -MAP.bound, MAP.bound);
+    let y = n(m.p[1], 0, 12);
+    let z = n(m.p[2], -MAP.bound, MAP.bound);
+
+    // FIX #4: anti-teleport — batasi perpindahan sesuai selang antar paket.
+    // lastMoveT = 0 berarti baru spawn/join → paket pertama diterima apa adanya.
+    if (p.lastMoveT) {
+      const dt = clamp((now - p.lastMoveT) / 1000, 0.05, 1);
+      const maxD = 10 * dt + 1;
+      const dist = Math.hypot(x - p.pos.x, y - p.pos.y, z - p.pos.z);
+      if (dist > maxD) {
+        const k = maxD / dist;
+        x = p.pos.x + (x - p.pos.x) * k;
+        y = p.pos.y + (y - p.pos.y) * k;
+        z = p.pos.z + (z - p.pos.z) * k;
+      }
+    }
+    p.pos.x = x; p.pos.y = y; p.pos.z = z;
+    p.lastMoveT = now;
     p.yaw = n(m.yaw, -Math.PI * 4, Math.PI * 4);
     p.pitch = n(m.pitch, -1.6, 1.6);
     p.crouch = !!m.crouch;
@@ -174,19 +207,16 @@ io.on('connection', (socket) => {
     if (!p || !p.alive || !WEAPONS[w] || w !== p.weapon || !Array.isArray(d)) return;
     const wp = WEAPONS[w];
 
-    // validasi arah
     let dx = +d[0] || 0, dy = +d[1] || 0, dz = +d[2] || 0;
     const L = Math.hypot(dx, dy, dz);
     if (!isFinite(L) || L < 0.5 || L > 1.5) return;
     dx /= L; dy /= L; dz /= L;
 
-    // anti rapid-fire: interval minimum per senjata (toleransi jitter)
     const now = Date.now();
-    if (now - p.lastShot < 60000 / wp.rpm * 0.75) return;
+    if (now - p.lastShot < 60000 / wp.rpm * 0.75) return; // anti rapid-fire
     p.lastShot = now;
 
-    // origin selalu dari posisi server (anti tembak-dari-mana-saja)
-    const ox = p.pos.x, oy = p.pos.y + 1.62, oz = p.pos.z;
+    const ox = p.pos.x, oy = p.pos.y + 1.62, oz = p.pos.z; // origin dari posisi server
     io.emit('shot', { id: p.id, w, o: [+ox.toFixed(2), +oy.toFixed(2), +oz.toFixed(2)], d: [dx, dy, dz] });
 
     const hit = castRay(ox, oy, oz, dx, dy, dz, p.id, wp.range);
@@ -204,12 +234,26 @@ io.on('connection', (socket) => {
   socket.on('respawn', () => {
     const p = players.get(socket.id);
     if (!p || p.alive) return;
-    if (Date.now() - p.diedAt < RULES.respawn * 900) return; // hormati countdown
+    if (Date.now() - p.diedAt < RULES.respawn * 900) return;
     p.alive = true; p.hp = RULES.hp;
     p.pos = spawnPos(p.team);
     p.yaw = p.team === 'A' ? Math.PI : 0;
+    p.pitch = 0;
     p.weapon = p.primary;
+    p.lastMoveT = 0; // teleport spawn sah → paket move pertama diterima langsung
     socket.emit('respawn:ok', { pos: [p.pos.x, p.pos.y, p.pos.z], yaw: p.yaw, hp: p.hp });
+  });
+
+  // FIX #5: chat multiplayer (sanitasi + rate-limit 2 pesaan/detik)
+  socket.on('chat', ({ msg } = {}) => {
+    const p = players.get(socket.id);
+    if (!p) return;
+    const now = Date.now();
+    if (now - p.lastChat < 500) return;
+    p.lastChat = now;
+    const m = String(msg || '').replace(/[^\w \.,!?\-:()]/g, '').trim().slice(0, 80);
+    if (!m) return;
+    io.emit('chat', { n: p.name, t: p.team, m });
   });
 
   socket.on('ping', (t) => socket.emit('pong', t));
@@ -217,13 +261,11 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => leaveGame(socket, 'disconnect'));
 });
 
-/* ---------- snapshot 20 Hz ke semua klien ---------- */
+/* ---------- snapshot 20 Hz ---------- */
 setInterval(() => {
   const arr = [];
   for (const p of players.values()) arr.push(snapObj(p));
   io.emit('snap', arr);
 }, 1000 / RULES.tick);
 
-httpServer.listen(PORT, () => {
-  console.log(`STRIKE VECTOR aktif → http://localhost:${PORT}`);
-});
+httpServer.listen(PORT, () => console.log(`STRIKE VECTOR aktif → http://localhost:${PORT}`));
